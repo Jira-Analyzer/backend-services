@@ -10,4 +10,4 @@ stop-dev:
 	docker-compose \
 		-f deployments/docker/postgres.docker-compose.yaml \
 		--env-file=deployments/docker/.env \
-		down
+		down --volumes
