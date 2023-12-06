@@ -8,14 +8,14 @@ import (
 )
 
 type Provider struct {
-	DB *sqlx.DB
+	*sqlx.DB
 }
 
 func NewProvider(config *Config) (*Provider, error) {
 	connectionFmt := "host=%s user=%s dbname=%s sslmode=disable password=%s"
 	db, err := sqlx.Open("postgres", fmt.Sprintf(connectionFmt, config.Host, config.User, config.Name, config.Password))
 	if err != nil {
-		return nil, fmt.Errorf("Failed to add database to pool. Error: %s", err.Error())
+		return nil, fmt.Errorf("Failed to add database to pool. Error: %w", err)
 	}
 
 	return &Provider{
@@ -23,6 +23,6 @@ func NewProvider(config *Config) (*Provider, error) {
 	}, nil
 }
 
-func (provider *Provider) Close() {
-	provider.DB.Close()
+func (provider *Provider) Close() error {
+	return provider.Close()
 }
