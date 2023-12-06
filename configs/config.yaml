@@ -1,6 +1,5 @@
 db:
-  port: 5432
-  host: "localhost"
+  host: "localhost:5432"
   name: "testdb"
   user: "pguser"
   password: "pgpwd"
