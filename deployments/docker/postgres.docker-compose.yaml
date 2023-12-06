@@ -10,8 +10,13 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "${DB_PORT}:5432"
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${DB_NAME}", "-U", "${DB_USER}" ]
+      timeout: ${DB_HEALTHCHECK_TIMEOUT}
+      interval: ${DB_HEALTHCHECK_INTERVAL}
+      retries: 10
     deploy:
       resources:
         limits:
@@ -19,6 +24,27 @@ services:
           memory: 4G
     networks:
       - jira-analyzer
+
+  pgadmin:
+    image: dpage/pgadmin4:${PGADMIN_TAG}
+    container_name: pgadmin4
+    restart: unless-stopped
+    ports:
+      - "${PGADMIN_PORT}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 1G
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - jira-analyzer
+
 networks:
   jira-analyzer:
     driver: bridge
