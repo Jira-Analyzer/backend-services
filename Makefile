@@ -4,10 +4,10 @@ start-dev:
 		-f deployments/docker/postgres.docker-compose.yaml \
 		--env-file=deployments/docker/.env \
 		up -d
-
+args=
 .PHONY: stop-dev
 stop-dev:
 	docker-compose \
 		-f deployments/docker/postgres.docker-compose.yaml \
 		--env-file=deployments/docker/.env \
-		down
+		down ${args}
