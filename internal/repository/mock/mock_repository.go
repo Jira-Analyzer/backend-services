@@ -55,6 +55,35 @@ func (mr *MockIIssueRepositoryMockRecorder) GetIssuesByProject(arg0, arg1 any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIssuesByProject", reflect.TypeOf((*MockIIssueRepository)(nil).GetIssuesByProject), arg0, arg1)
 }
 
+// InsertIssue mocks base method.
+func (m *MockIIssueRepository) InsertIssue(arg0 context.Context, arg1 domain.Issue) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertIssue", arg0, arg1)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertIssue indicates an expected call of InsertIssue.
+func (mr *MockIIssueRepositoryMockRecorder) InsertIssue(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertIssue", reflect.TypeOf((*MockIIssueRepository)(nil).InsertIssue), arg0, arg1)
+}
+
+// UpdateIssue mocks base method.
+func (m *MockIIssueRepository) UpdateIssue(arg0 context.Context, arg1 domain.Issue) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateIssue", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateIssue indicates an expected call of UpdateIssue.
+func (mr *MockIIssueRepositoryMockRecorder) UpdateIssue(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateIssue", reflect.TypeOf((*MockIIssueRepository)(nil).UpdateIssue), arg0, arg1)
+}
+
 // MockIProjectRepository is a mock of IProjectRepository interface.
 type MockIProjectRepository struct {
 	ctrl     *gomock.Controller
@@ -106,4 +135,33 @@ func (m *MockIProjectRepository) GetProjectsByRange(arg0 context.Context, arg1, 
 func (mr *MockIProjectRepositoryMockRecorder) GetProjectsByRange(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProjectsByRange", reflect.TypeOf((*MockIProjectRepository)(nil).GetProjectsByRange), arg0, arg1, arg2)
+}
+
+// InsertProject mocks base method.
+func (m *MockIProjectRepository) InsertProject(arg0 context.Context, arg1 domain.Project) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertProject", arg0, arg1)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertProject indicates an expected call of InsertProject.
+func (mr *MockIProjectRepositoryMockRecorder) InsertProject(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertProject", reflect.TypeOf((*MockIProjectRepository)(nil).InsertProject), arg0, arg1)
+}
+
+// UpdateProject mocks base method.
+func (m *MockIProjectRepository) UpdateProject(arg0 context.Context, arg1 domain.Project) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateProject", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateProject indicates an expected call of UpdateProject.
+func (mr *MockIProjectRepositoryMockRecorder) UpdateProject(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateProject", reflect.TypeOf((*MockIProjectRepository)(nil).UpdateProject), arg0, arg1)
 }
