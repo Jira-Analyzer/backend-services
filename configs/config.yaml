@@ -1,0 +1,5 @@
+db:
+  host: "localhost:5432"
+  name: "testdb"
+  user: "pguser"
+  password: "pgpwd"
