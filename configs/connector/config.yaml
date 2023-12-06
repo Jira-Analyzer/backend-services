@@ -1,0 +1,12 @@
+db:
+  host: "localhost:5432"
+  name: "testdb"
+  user: "pguser"
+  password: "pgpwd"
+connector-service:
+  local_http_server_port: 8003
+  jiraUrl: https://issues.apache.org/jira
+  issuesPerRequest: 100
+  threadCount: 10
+  maxTimeSleep: 8000
+  minTimeSleep: 50

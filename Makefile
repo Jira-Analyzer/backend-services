@@ -6,6 +6,7 @@ start-dev:
 		up -d
 
 args=
+args=
 .PHONY: stop-dev
 stop-dev:
 	docker-compose \
@@ -16,3 +17,7 @@ stop-dev:
 .PHONY: unit-test
 unit-test:
 	go test -cover ./... -tags unit
+
+.PHONY: gogen
+gogen:
+	go generate ./...
