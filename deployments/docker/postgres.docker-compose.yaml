@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:${POSTGRES_TAG}
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+    networks:
+      - jira-analyzer
+networks:
+  jira-analyzer:
+    driver: bridge
