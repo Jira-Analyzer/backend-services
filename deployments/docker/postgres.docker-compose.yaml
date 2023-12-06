@@ -14,10 +14,10 @@ services:
       - "${DB_PORT}:5432"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 10s
-      timeout: 30s
-      retries: 5
+      test: [ "CMD", "pg_isready", "-q", "-d", "${DB_NAME}", "-U", "${DB_USER}" ]
+      timeout: 50s
+      interval: 45s
+      retries: 10
     deploy:
       resources:
         limits:
