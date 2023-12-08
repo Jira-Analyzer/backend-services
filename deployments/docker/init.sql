@@ -28,5 +28,5 @@ CREATE TABLE IF NOT EXISTS "Issue" (
   created_time TIMESTAMP WITHOUT TIME ZONE,
   closed_time TIMESTAMP WITHOUT TIME ZONE,
   updated_time TIMESTAMP WITHOUT TIME ZONE,
-  time_spent INT
+  time_spent INT DEFAULT 0
 );
