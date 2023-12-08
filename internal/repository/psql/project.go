@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	provider "github.com/Jira-Analyzer/backend-services/internal/db"
-	"github.com/Jira-Analyzer/backend-services/internal/models"
+	"github.com/Jira-Analyzer/backend-services/internal/domain"
 )
 
 type ProjectRepository struct {
@@ -17,8 +17,8 @@ func NewProjectRepository(provider *provider.Provider) *ProjectRepository {
 	}
 }
 
-func (repository *ProjectRepository) GetProjects() ([]models.Project, error) {
-	projects := []models.Project{}
+func (repository *ProjectRepository) GetProjects() ([]domain.Project, error) {
+	projects := []domain.Project{}
 	if err := repository.db.Select(&projects, `SELECT * FROM "Project"`); err != nil {
 		return nil, fmt.Errorf("Failed to fetch projects due to: %w", err)
 	}

@@ -1,11 +1,11 @@
 package repository
 
-import "github.com/Jira-Analyzer/backend-services/internal/models"
+import "github.com/Jira-Analyzer/backend-services/internal/domain"
 
 type IssueRepositoryInterface interface {
-	GetIssuesByProject(projectId int) ([]models.Issue, error)
+	GetIssuesByProject(projectId int) ([]domain.Issue, error)
 }
 
 type ProjectRepositoryInrerface interface {
-	GetProjects() ([]models.Project, error)
+	GetProjects() ([]domain.Project, error)
 }
