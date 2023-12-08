@@ -3,8 +3,8 @@ package provider
 import (
 	"fmt"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 )
 
 type Provider struct {
@@ -12,8 +12,8 @@ type Provider struct {
 }
 
 func NewProvider(config *Config) (*Provider, error) {
-	connectionFmt := "host=%s user=%s dbname=%s sslmode=disable password=%s"
-	db, err := sqlx.Open("postgres", fmt.Sprintf(connectionFmt, config.Host, config.User, config.Name, config.Password))
+	connectionFmt := "postgresql://@%s/%s?user=%s&password=%s&sslmode=disable"
+	db, err := sqlx.Open("pgx", fmt.Sprintf(connectionFmt, config.Host, config.Name, config.User, config.Password))
 	if err != nil {
 		return nil, fmt.Errorf("Failed to add database to pool. Error: %w", err)
 	}
@@ -24,5 +24,8 @@ func NewProvider(config *Config) (*Provider, error) {
 }
 
 func (provider *Provider) Close() error {
-	return provider.Close()
+	if provider != nil {
+		return provider.DB.Close()
+	}
+	return nil
 }
