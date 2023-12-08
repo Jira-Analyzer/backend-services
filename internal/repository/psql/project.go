@@ -1,10 +1,10 @@
-package db
+package psql
 
 import (
 	"fmt"
 
-	"github.com/Jira-Analyzer/backend-services/internal/db/models"
-	provider "github.com/Jira-Analyzer/backend-services/internal/db/postgres"
+	provider "github.com/Jira-Analyzer/backend-services/internal/db"
+	"github.com/Jira-Analyzer/backend-services/internal/models"
 )
 
 type ProjectRepository struct {

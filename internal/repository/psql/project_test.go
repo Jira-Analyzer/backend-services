@@ -1,9 +1,9 @@
-package db
+package psql
 
 import (
 	"testing"
 
-	provider "github.com/Jira-Analyzer/backend-services/internal/db/postgres"
+	provider "github.com/Jira-Analyzer/backend-services/internal/db"
 	"github.com/stretchr/testify/assert"
 	sqlxmock "github.com/zhashkevych/go-sqlxmock"
 )
