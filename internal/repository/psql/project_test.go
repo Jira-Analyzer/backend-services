@@ -19,14 +19,15 @@ func TestIssueRepository_GetProjects(t *testing.T) {
 	}
 	defer db.Close()
 
-	mock.ExpectQuery(`^SELECT (.+) FROM (.+)$`).
+	mock.ExpectQuery(`^SELECT (.+) FROM "Project"$`).
 		WillReturnRows(projectRows)
 
 	repo := NewProjectRepository(&provider.Provider{
 		DB: db,
 	})
 
-	issues, err := repo.GetProjects()
-	assert.Nil(t, err)
-	assert.Len(t, issues, 2)
+	projects, err := repo.GetProjects()
+	if assert.NoError(t, err) {
+		assert.Len(t, projects, 2)
+	}
 }
