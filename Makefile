@@ -4,6 +4,7 @@ start-dev:
 		-f deployments/docker/postgres.docker-compose.yaml \
 		--env-file=deployments/docker/.env \
 		up -d
+
 args=
 .PHONY: stop-dev
 stop-dev:
@@ -11,3 +12,7 @@ stop-dev:
 		-f deployments/docker/postgres.docker-compose.yaml \
 		--env-file=deployments/docker/.env \
 		down ${args}
+
+.PHONY: unit-test
+unit-test:
+	go test -cover ./...
