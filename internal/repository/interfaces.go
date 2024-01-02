@@ -6,6 +6,6 @@ type IssueRepositoryInterface interface {
 	GetIssuesByProject(projectId int) ([]domain.Issue, error)
 }
 
-type ProjectRepositoryInrerface interface {
+type ProjectRepositoryInterface interface {
 	GetProjects() ([]domain.Project, error)
 }
