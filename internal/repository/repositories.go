@@ -6,13 +6,13 @@ import (
 )
 
 type Repositories struct {
-	IssueRepositoryInterface
-	ProjectRepositoryInrerface
+	IssueRepository   IssueRepositoryInterface
+	ProjectRepository ProjectRepositoryInterface
 }
 
 func NewRepositories(provider *provider.Provider) *Repositories {
 	return &Repositories{
-		IssueRepositoryInterface:   db.NewIssueRepository(provider),
-		ProjectRepositoryInrerface: db.NewProjectRepository(provider),
+		IssueRepository:   db.NewIssueRepository(provider),
+		ProjectRepository: db.NewProjectRepository(provider),
 	}
 }
