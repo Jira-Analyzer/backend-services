@@ -8,10 +8,10 @@ import (
 )
 
 type ProjectService struct {
-	repo repository.ProjectRepositoryInrerface
+	repo repository.ProjectRepositoryInterface
 }
 
-func NewProjectService(repo repository.ProjectRepositoryInrerface) *ProjectService {
+func NewProjectService(repo repository.ProjectRepositoryInterface) *ProjectService {
 	return &ProjectService{
 		repo: repo,
 	}
