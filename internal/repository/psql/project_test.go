@@ -1,6 +1,10 @@
+//go:build unit
+// +build unit
+
 package psql
 
 import (
+	"context"
 	"testing"
 
 	provider "github.com/Jira-Analyzer/backend-services/internal/db"
@@ -17,7 +21,9 @@ func TestIssueRepository_GetProjects(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
-	defer db.Close()
+	t.Cleanup(func() {
+		db.Close()
+	})
 
 	mock.ExpectQuery(`^SELECT (.+) FROM "Project"$`).
 		WillReturnRows(projectRows)
@@ -26,7 +32,7 @@ func TestIssueRepository_GetProjects(t *testing.T) {
 		DB: db,
 	})
 
-	projects, err := repo.GetProjects()
+	projects, err := repo.GetProjects(context.Background())
 	if assert.NoError(t, err) {
 		assert.Len(t, projects, 2)
 	}
