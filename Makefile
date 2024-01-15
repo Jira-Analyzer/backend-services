@@ -15,4 +15,4 @@ stop-dev:
 
 .PHONY: unit-test
 unit-test:
-	go test -cover ./...
+	go test -cover ./... -tags unit
