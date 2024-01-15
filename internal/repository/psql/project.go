@@ -1,10 +1,12 @@
 package psql
 
 import (
+	"context"
 	"fmt"
 
 	provider "github.com/Jira-Analyzer/backend-services/internal/db"
 	"github.com/Jira-Analyzer/backend-services/internal/domain"
+	errorlib "github.com/Jira-Analyzer/backend-services/internal/error"
 )
 
 type ProjectRepository struct {
@@ -17,10 +19,10 @@ func NewProjectRepository(provider *provider.Provider) *ProjectRepository {
 	}
 }
 
-func (repository *ProjectRepository) GetProjects() ([]domain.Project, error) {
-	projects := []domain.Project{}
-	if err := repository.db.Select(&projects, `SELECT * FROM "Project"`); err != nil {
-		return nil, fmt.Errorf("Failed to fetch projects due to: %w", err)
+func (repository *ProjectRepository) GetProjects(ctx context.Context) ([]domain.Project, error) {
+	projects := make([]domain.Project, 0)
+	if err := repository.db.SelectContext(ctx, &projects, `SELECT * FROM "Project"`); err != nil {
+		return nil, fmt.Errorf("Failed to fetch projects due to: %w", errorlib.InternalError)
 	}
 	return projects, nil
 }
