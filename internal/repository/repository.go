@@ -6,8 +6,8 @@ import (
 )
 
 type Repositories struct {
-	IssueRepository   IssueRepositoryInterface
-	ProjectRepository ProjectRepositoryInterface
+	IssueRepository   IIssueRepository
+	ProjectRepository IProjectRepository
 }
 
 func NewRepositories(provider *provider.Provider) *Repositories {
