@@ -1,5 +1,5 @@
 [![Build](https://github.com/Jira-Analyzer/backend-services/actions/workflows/go.yaml/badge.svg)](https://github.com/Jira-Analyzer/backend-services/actions/workflows/go.yaml)
-![Coverage](https://img.shields.io/badge/Coverage-90.0%25-brightgreen)
+![Coverage](https://img.shields.io/badge/Coverage-0.0%25-red)
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 <!--   *generated with [DocToc](https://github.com/thlorenz/doctoc)* -->
