@@ -5,6 +5,7 @@ go 1.21
 require (
 	github.com/jackc/pgx/v5 v5.5.0
 	github.com/jmoiron/sqlx v1.3.5
+	go.uber.org/mock v0.4.0
 )
 
 require (
