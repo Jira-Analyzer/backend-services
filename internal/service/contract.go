@@ -14,5 +14,5 @@ type IIssueService interface {
 
 type IProjectService interface {
 	GetProjects(ctx context.Context) ([]domain.Project, error)
-	GetProjectsByRange(ctx context.Context, start int, count int) ([]domain.Project, error)
+	GetProjectsByRange(ctx context.Context, offset int, count int) ([]domain.Project, error)
 }
