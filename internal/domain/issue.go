@@ -12,7 +12,8 @@ type Issue struct {
 	Type        string
 	Priority    string
 	Status      string
-	CreatedTime time.Time `db:"created_time"`
-	ClosedTime  time.Time `db:"closed_time"`
-	UpdatedTime time.Time `db:"updated_time"`
+	CreatedTime time.Time     `db:"created_time"`
+	ClosedTime  time.Time     `db:"closed_time"`
+	UpdatedTime time.Time     `db:"updated_time"`
+	TimeSpent   time.Duration `db:"time_spent"`
 }
