@@ -14,4 +14,5 @@ type IIssueRepository interface {
 
 type IProjectRepository interface {
 	GetProjects(context context.Context) ([]domain.Project, error)
+	GetProjectsByRange(ctx context.Context, offset int, count int) ([]domain.Project, error)
 }
