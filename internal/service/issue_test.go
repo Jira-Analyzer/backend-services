@@ -1,41 +1,39 @@
 package service
 
 import (
+	"context"
 	"testing"
-	"time"
 
-	provider "github.com/Jira-Analyzer/backend-services/internal/db"
-	"github.com/Jira-Analyzer/backend-services/internal/repository/psql"
+	"github.com/Jira-Analyzer/backend-services/internal/domain"
+	errorlib "github.com/Jira-Analyzer/backend-services/internal/error"
+	mock_repository "github.com/Jira-Analyzer/backend-services/internal/repository/mock"
 	"github.com/stretchr/testify/assert"
-	sqlxmock "github.com/zhashkevych/go-sqlxmock"
+	"go.uber.org/mock/gomock"
 )
 
-var issueRows = sqlxmock.NewRows([]string{"id", "project_id", "author_id", "reporter_id", "key", "summary", "type", "priority", "status", "created_time", "closed_time", "updated_time", "time_spent"}).
-	AddRow(12330737, 10730, 1, 1, "AGILA-44", "Option to use JSP Includ…g forms for Task nodes.", "Bug", "Major", "Open", time.Time{}, time.Time{}, time.Time{}, 0)
+var issueList = []domain.Issue{
+	{ProjectId: 123},
+	{ProjectId: 123},
+	{ProjectId: 123},
+	{ProjectId: 123},
+	{ProjectId: 123},
+}
 
 func TestIssueRepository_GetIssuesByProject(t *testing.T) {
-	db, mock, err := sqlxmock.Newx()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	defer db.Close()
+	ctrl := gomock.NewController(t)
+	mockRepo := mock_repository.NewMockIIssueRepository(ctrl)
 
-	mock.ExpectQuery(`^SELECT (.+) FROM (.+) WHERE project_id=(.+)$`).
-		WithArgs(10730).
-		WillReturnRows(issueRows)
+	mockRepo.EXPECT().GetIssuesByProject(gomock.Any(), 123).AnyTimes().Return(issueList, nil)
+	mockRepo.EXPECT().GetIssuesByProject(gomock.Any(), gomock.Not(123)).AnyTimes().Return(nil, errorlib.InternalError)
 
-	repo := psql.NewIssueRepository(&provider.Provider{
-		DB: db,
-	})
+	service := NewIssueService(mockRepo)
 
-	service := NewIssueService(repo)
-
-	issues, err := service.GetIssuesByProject(10730)
+	issues, err := service.GetIssuesByProject(context.Background(), 123)
 	if assert.NoError(t, err) {
-		assert.Len(t, issues, 1)
+		assert.Equal(t, issues, issueList)
 	}
 
-	issues, err = service.GetIssuesByProject(123)
+	issues, err = service.GetIssuesByProject(context.Background(), 112)
 	if assert.Error(t, err) {
 		assert.Nil(t, issues)
 	}
