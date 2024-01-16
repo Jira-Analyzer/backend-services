@@ -21,7 +21,6 @@ func (service *ProjectService) GetProjects(ctx context.Context) ([]domain.Projec
 	return service.repo.GetProjects(ctx)
 }
 
-func (service *ProjectService) GetProjectsByRange(ctx context.Context, start int, count int) ([]domain.Project, error) {
-	// todo
-	return nil, nil
+func (service *ProjectService) GetProjectsByRange(ctx context.Context, offset int, count int) ([]domain.Project, error) {
+	return service.repo.GetProjectsByRange(ctx, offset, count)
 }
