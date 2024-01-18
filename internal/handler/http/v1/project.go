@@ -3,7 +3,6 @@ package v1
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Jira-Analyzer/backend-services/internal/service"
@@ -27,11 +26,13 @@ func (handler *ProjectHandler) SetRouter(router *mux.Router) {
 func (handler *ProjectHandler) getAll(writer http.ResponseWriter, request *http.Request) {
 	projects, err := handler.service.GetProjects(context.Background())
 	if err != nil {
+		// check error from errorlib ->  http code
 		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
 	}
-	writer.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(writer).Encode(&projects)
 	if err != nil {
-		fmt.Println("uupds")
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		// log
 	}
 }
