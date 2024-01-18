@@ -3,3 +3,7 @@ db:
   name: "testdb"
   user: "pguser"
   password: "pgpwd"
+rest-service:
+  host: "localhost:8000"
+  resource-timeout: 5s
+  analytics-timeout: 15s
