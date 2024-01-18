@@ -1,6 +1,6 @@
 CREATE ROLE replicator WITH REPLICATION LOGIN PASSWORD 'postgres';
 
-CREATE TABLE IF NOT EXISTS "projects" (
+CREATE TABLE IF NOT EXISTS "Project" (
   id integer PRIMARY KEY,
   name TEXT,
   description TEXT,
@@ -9,22 +9,22 @@ CREATE TABLE IF NOT EXISTS "projects" (
   archived BOOLEAN
 );
 
-CREATE TABLE IF NOT EXISTS "authors" (
+CREATE TABLE IF NOT EXISTS "Author" (
   id serial PRIMARY KEY,
   name TEXT,
   display_name TEXT
 );
 
-CREATE TABLE IF NOT EXISTS "issues" (
+CREATE TABLE IF NOT EXISTS "Issue" (
   id integer PRIMARY KEY,
-  project_id integer REFERENCES projects (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  author_id integer REFERENCES authors (id) ON DELETE RESTRICT ON UPDATE CASCADE,
-  reporter_id integer REFERENCES authors (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  project_id integer REFERENCES "Project" (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  author_id integer REFERENCES "Author" (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  reporter_id integer REFERENCES "Author" (id) ON DELETE RESTRICT ON UPDATE CASCADE,
   key TEXT,
   summary TEXT,
   type TEXT,
   priority TEXT,
-  closed BOOLEAN,
+  status TEXT,
   created_time TIMESTAMP WITHOUT TIME ZONE,
   closed_time TIMESTAMP WITHOUT TIME ZONE,
   updated_time TIMESTAMP WITHOUT TIME ZONE,
