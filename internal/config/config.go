@@ -15,15 +15,15 @@ type DbConfig struct {
 	Password string `yaml:"password"`
 }
 
-type RESTServiceConfig struct {
+type ServerConfig struct {
 	Host             string        `yaml:"host"`
 	ResourceTimeout  time.Duration `yaml:"resource-timeout"`
 	AnalyticsTimeout time.Duration `yaml:"analytics-timeout"`
 }
 
 type Config struct {
-	DbConfig          DbConfig          `yaml:"db"`
-	RESTServiceConfig RESTServiceConfig `yaml:"rest-service"`
+	DbConfig     DbConfig     `yaml:"db"`
+	ServerConfig ServerConfig `yaml:"rest-service"`
 }
 
 func ReadConfigFromYAML(path string) (*Config, error) {
