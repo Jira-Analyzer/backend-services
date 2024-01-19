@@ -34,5 +34,6 @@ func (handler *ProjectHandler) getAll(writer http.ResponseWriter, request *http.
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		// log
+		return
 	}
 }
