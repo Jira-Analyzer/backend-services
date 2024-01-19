@@ -19,6 +19,9 @@ func NewPsqlProvider(config *config.DbConfig) (*Provider, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to add database to pool. Error: %w", errorlib.InternalError)
 	}
+	if db.Ping() != nil {
+		return nil, fmt.Errorf("failed to ping database. Error: %w", errorlib.InternalError)
+	}
 
 	return &Provider{
 		DB: db,
