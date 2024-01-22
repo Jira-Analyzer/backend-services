@@ -3,29 +3,78 @@ package config
 import (
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
-	errorlib "github.com/Jira-Analyzer/backend-services/internal/error"
+	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
 
+// Server defaults
+const (
+	defaultReadTimeout      time.Duration = 5 * time.Second
+	defaultWriteTimeout     time.Duration = 5 * time.Second
+	defaultServerHost       string        = ":8000"
+	defaultResourseTimeout  time.Duration = 5 * time.Second
+	defaultAnalyticsTimeout time.Duration = 15 * time.Second
+)
+
 type DbConfig struct {
-	Host     *string `yaml:"host"`
-	Name     *string `yaml:"name"`
-	User     *string `yaml:"user"`
-	Password *string `yaml:"password"`
+	Host     string `yaml:"host" validate:"required"`
+	Name     string `yaml:"name" validate:"required"`
+	User     string `yaml:"user" validate:"required"`
+	Password string `yaml:"password" validate:"required"`
 }
 
 type ServerConfig struct {
 	Host             *string        `yaml:"host"`
 	ResourceTimeout  *time.Duration `yaml:"resource-timeout"`
 	AnalyticsTimeout *time.Duration `yaml:"analytics-timeout"`
+	ReadTimeout      *time.Duration `yaml:"read-timeout"`
+	WriteTimeout     *time.Duration `yaml:"write-timeout"`
+}
+
+type LoggerConfig struct {
+	LogFile  string `yaml:"log-file" validate:"required"`
+	WarnFile string `yaml:"warn-file" validate:"required"`
 }
 
 type Config struct {
 	DbConfig     DbConfig     `yaml:"db"`
 	ServerConfig ServerConfig `yaml:"rest-service"`
+	LoggerConfig LoggerConfig `yaml:"logger"`
+}
+
+func (config *Config) ValidateConfig() error {
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err := validate.Struct(config)
+	if err != nil {
+		errors := err.(validator.ValidationErrors)
+		logrus.Info(errors)
+		return err
+	}
+	return nil
+}
+
+func (config *Config) PopulateConfig() {
+	s := func(s string) *string { return &s }
+	d := func(d time.Duration) *time.Duration { return &d }
+
+	if config.ServerConfig.Host == nil {
+		config.ServerConfig.Host = s(defaultServerHost)
+	}
+	if config.ServerConfig.AnalyticsTimeout == nil {
+		config.ServerConfig.AnalyticsTimeout = d(defaultAnalyticsTimeout)
+	}
+	if config.ServerConfig.ResourceTimeout == nil {
+		config.ServerConfig.ReadTimeout = d(defaultResourseTimeout)
+	}
+	if config.ServerConfig.ReadTimeout == nil {
+		config.ServerConfig.ReadTimeout = d(defaultReadTimeout)
+	}
+	if config.ServerConfig.WriteTimeout == nil {
+		config.ServerConfig.WriteTimeout = d(defaultWriteTimeout)
+	}
 }
 
 func ReadConfigFromYAML(path string) (*Config, error) {
@@ -40,26 +89,4 @@ func ReadConfigFromYAML(path string) (*Config, error) {
 	}
 
 	return conf, nil
-}
-
-func ValidateConfig(config *Config) error {
-	var err error = nil
-	fields := make([]string, 0)
-	if config.DbConfig.Host == nil {
-		fields = append(fields, "db.Host")
-	}
-	if config.DbConfig.Name == nil {
-		fields = append(fields, "db.Name")
-	}
-	if config.DbConfig.User == nil {
-		fields = append(fields, "db.User")
-	}
-	if config.DbConfig.Password == nil {
-		fields = append(fields, "db.Password")
-	}
-
-	if len(fields) != 0 {
-		err = fmt.Errorf("Error: %w. Missing fields %s", errorlib.ConfigValueMissError, strings.Join(fields, ", "))
-	}
-	return err
 }
