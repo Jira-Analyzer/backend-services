@@ -2,16 +2,14 @@ package server
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/Jira-Analyzer/backend-services/internal/config"
 	"github.com/gorilla/mux"
 )
 
 type Server struct {
-	server          *http.Server
-	notify          chan error
-	shutdownTimeout time.Duration
+	server *http.Server
+	notify chan error
 }
 
 func NewServer(config *config.ServerConfig, router *mux.Router, notify chan error) *Server {
