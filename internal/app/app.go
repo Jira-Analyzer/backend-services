@@ -10,7 +10,6 @@ import (
 	"github.com/Jira-Analyzer/backend-services/internal/server"
 	"github.com/Jira-Analyzer/backend-services/internal/service"
 	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
 )
 
 type App struct {
@@ -18,10 +17,10 @@ type App struct {
 	provider *provider.Provider
 }
 
-func NewApp(config *config.Config) *App {
+func NewApp(config *config.Config, notify chan error) (*App, error) {
 	provider, err := provider.NewPsqlProvider(&config.DbConfig)
 	if err != nil {
-		log.Fatal(fmt.Errorf("Failed to initialize db with error: %w", err))
+		return nil, fmt.Errorf("Failed to initialize db with error: %w", err)
 	}
 
 	repos := repository.NewRepositories(provider)
@@ -31,30 +30,23 @@ func NewApp(config *config.Config) *App {
 	router := mux.NewRouter()
 	handlers.SetRouter(router)
 
-	server := server.NewServer(&config.ServerConfig, router)
+	server := server.NewServer(&config.ServerConfig, router, notify)
 
 	return &App{
 		server:   server,
 		provider: provider,
-	}
+	}, nil
 }
 
 func (app *App) Start() {
 	app.server.Start()
 }
 
-func (app *App) GetServerNotify() <-chan error {
-	return app.server.GetNotify()
-}
-
-func (app *App) Stop() {
-	err := app.server.Shutdown()
-	if err != nil {
-		log.Error(fmt.Errorf("Graceful shutdown was ended with error: %w", err))
+func (app *App) Stop() error {
+	serverErr := app.server.Stop()
+	providerErr := app.provider.Close()
+	if serverErr != nil || providerErr != nil {
+		return fmt.Errorf("Provider error: %w. Server error: %w", providerErr, serverErr)
 	}
-
-	err = app.provider.Close()
-	if err != nil {
-		log.Error(fmt.Errorf("Failed to close db connection with error: %w", err))
-	}
+	return nil
 }

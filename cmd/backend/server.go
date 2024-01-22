@@ -13,49 +13,53 @@ import (
 )
 
 const (
-	logFile    string = "logs.log"
-	errLogFile string = "err_logs.log"
 	configFile string = "configs/config.yaml"
 )
 
 func main() {
-	logs, err := os.Create(logFile)
+	conf, err := config.ReadConfigFromYAML(configFile)
 	if err != nil {
-		log.Fatal(fmt.Errorf("Unable to create %s file. Error: %w", logFile, err))
+		panic(fmt.Errorf("Read of config from '%s' failed: %w", configFile, err))
+	}
+	err = conf.ValidateConfig()
+	if err != nil {
+		panic(fmt.Errorf("'%s' parsing failed: %w", configFile, err))
+	}
+	conf.PopulateConfig()
+
+	logs, err := os.OpenFile(conf.LoggerConfig.LogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModeAppend)
+	if err != nil {
+		panic(fmt.Errorf("Unable to create '%s' file. Error: %w", conf.LoggerConfig.LogFile, err))
 	}
 	defer logs.Close()
 
-	errlogs, err := os.Create(errLogFile)
+	errLogs, err := os.OpenFile(conf.LoggerConfig.WarnFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModeAppend)
 	if err != nil {
-		log.Fatal(fmt.Errorf("Unable to create %s file. Error: %w", logFile, err))
+		panic(fmt.Errorf("Unable to create '%s' file. Error: %w", conf.LoggerConfig.WarnFile, err))
 	}
-	defer errlogs.Close()
+	defer errLogs.Close()
 
-	logger.SetupLogrus(logs, errlogs)
-
-	conf, err := config.ReadConfigFromYAML(configFile)
-	if err != nil {
-		log.Fatal(fmt.Errorf("Read of config from %s failed: %w", configFile, err))
-	}
-	err = config.ValidateConfig(conf)
-	if err != nil {
-		log.Fatal(fmt.Errorf("%s parsing failed: %w", configFile, err))
-	}
-
+	logger.SetupLogrus(logs, errLogs)
 	log.Info("Starting...")
-	app := app.NewApp(conf)
+
+	notify := make(chan error, 1)
+	app, err := app.NewApp(conf, notify)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	app.Start()
+	defer app.Stop()
 
 	interupt := make(chan os.Signal, 1)
 	signal.Notify(interupt, os.Interrupt, syscall.SIGTERM)
 
 	select {
-	case serr := <-app.GetServerNotify():
-		log.Error(fmt.Errorf("Server closes with error: %w", serr))
+	case serr := <-notify:
+		log.Error(fmt.Errorf("Notified with app error: %w", serr))
 	case signl := <-interupt:
 		log.Info("Cought signal while App running: " + signl.String())
 	}
 
 	log.Info("Shutting down...")
-	app.Stop()
 }
