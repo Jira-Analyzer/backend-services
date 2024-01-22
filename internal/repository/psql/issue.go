@@ -22,7 +22,7 @@ func NewIssueRepository(provider *provider.Provider) *IssueRepository {
 func (repository *IssueRepository) GetIssuesByProject(ctx context.Context, projectId int) ([]domain.Issue, error) {
 	issues := make([]domain.Issue, 0)
 	if err := repository.db.SelectContext(ctx, &issues, `SELECT * FROM "Issue" WHERE project_id=$1`, projectId); err != nil {
-		return nil, fmt.Errorf("Failed to fetch project '%d' issues due to: %w", projectId, errorlib.InternalError)
+		return nil, fmt.Errorf("Failed to fetch project '%d' issues due to: %w", projectId, errorlib.ErrHttpInternal)
 	}
 	return issues, nil
 }
