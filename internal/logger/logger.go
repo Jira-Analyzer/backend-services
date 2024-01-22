@@ -12,7 +12,16 @@ func SetupLogrus(allLogsFile io.Writer, warnLogsFile io.Writer) {
 	log.SetOutput(allLogsFile)
 
 	log.AddHook(&writer.Hook{
-		Writer: io.MultiWriter(warnLogsFile, os.Stderr),
+		Writer: warnLogsFile,
+		LogLevels: []log.Level{
+			log.PanicLevel,
+			log.FatalLevel,
+			log.ErrorLevel,
+			log.WarnLevel,
+		},
+	})
+	log.AddHook(&writer.Hook{
+		Writer: os.Stderr,
 		LogLevels: []log.Level{
 			log.PanicLevel,
 			log.FatalLevel,
