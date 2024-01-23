@@ -8,11 +8,6 @@ import (
 	"github.com/sirupsen/logrus/hooks/writer"
 )
 
-type LoggerConfig struct {
-	LogFile  string `yaml:"log-file" validate:"required"`
-	WarnFile string `yaml:"warn-file" validate:"required"`
-}
-
 func SetupLogrus(allLogsFile io.Writer, warnLogsFile io.Writer) {
 	log.SetOutput(allLogsFile)
 
