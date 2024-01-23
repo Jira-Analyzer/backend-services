@@ -5,6 +5,9 @@ import (
 	"os"
 	"time"
 
+	provider "github.com/Jira-Analyzer/backend-services/internal/db"
+	"github.com/Jira-Analyzer/backend-services/internal/logger"
+	"github.com/Jira-Analyzer/backend-services/internal/server"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
@@ -19,30 +22,10 @@ const (
 	defaultAnalyticsTimeout time.Duration = 15 * time.Second
 )
 
-type DbConfig struct {
-	Host     string `yaml:"host" validate:"required"`
-	Name     string `yaml:"name" validate:"required"`
-	User     string `yaml:"user" validate:"required"`
-	Password string `yaml:"password" validate:"required"`
-}
-
-type ServerConfig struct {
-	Host             *string        `yaml:"host"`
-	ResourceTimeout  *time.Duration `yaml:"resource-timeout"`
-	AnalyticsTimeout *time.Duration `yaml:"analytics-timeout"`
-	ReadTimeout      *time.Duration `yaml:"read-timeout"`
-	WriteTimeout     *time.Duration `yaml:"write-timeout"`
-}
-
-type LoggerConfig struct {
-	LogFile  string `yaml:"log-file" validate:"required"`
-	WarnFile string `yaml:"warn-file" validate:"required"`
-}
-
 type Config struct {
-	DbConfig     DbConfig     `yaml:"db"`
-	ServerConfig ServerConfig `yaml:"rest-service"`
-	LoggerConfig LoggerConfig `yaml:"logger"`
+	DbConfig     provider.DbConfig   `yaml:"db"`
+	ServerConfig server.ServerConfig `yaml:"rest-service"`
+	LoggerConfig logger.LoggerConfig `yaml:"logger"`
 }
 
 func (config *Config) ValidateConfig() error {

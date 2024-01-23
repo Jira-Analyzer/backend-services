@@ -43,6 +43,8 @@ func main() {
 	log.Info("Starting...")
 
 	notify := make(chan error, 1)
+	defer close(notify)
+
 	app, err := app.NewApp(conf, notify)
 	if err != nil {
 		log.Fatal(err)
@@ -52,6 +54,8 @@ func main() {
 	defer app.Stop()
 
 	interupt := make(chan os.Signal, 1)
+	defer close(interupt)
+
 	signal.Notify(interupt, os.Interrupt, syscall.SIGTERM)
 
 	select {

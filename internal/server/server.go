@@ -2,17 +2,25 @@ package server
 
 import (
 	"net/http"
+	"time"
 
-	"github.com/Jira-Analyzer/backend-services/internal/config"
 	"github.com/gorilla/mux"
 )
+
+type ServerConfig struct {
+	Host             *string        `yaml:"host"`
+	ResourceTimeout  *time.Duration `yaml:"resource-timeout"`
+	AnalyticsTimeout *time.Duration `yaml:"analytics-timeout"`
+	ReadTimeout      *time.Duration `yaml:"read-timeout"`
+	WriteTimeout     *time.Duration `yaml:"write-timeout"`
+}
 
 type Server struct {
 	server *http.Server
 	notify chan error
 }
 
-func NewServer(config *config.ServerConfig, router *mux.Router, notify chan error) *Server {
+func NewServer(config *ServerConfig, router *mux.Router, notify chan error) *Server {
 	httpServer := &http.Server{
 		Addr:         *config.Host,
 		Handler:      router,
