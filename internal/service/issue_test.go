@@ -27,7 +27,7 @@ func TestIssueRepository_GetIssuesByProject(t *testing.T) {
 	mockRepo := mock_repository.NewMockIIssueRepository(ctrl)
 
 	mockRepo.EXPECT().GetIssuesByProject(gomock.Any(), 123).AnyTimes().Return(issueList, nil)
-	mockRepo.EXPECT().GetIssuesByProject(gomock.Any(), gomock.Not(123)).AnyTimes().Return(nil, errorlib.InternalError)
+	mockRepo.EXPECT().GetIssuesByProject(gomock.Any(), gomock.Not(123)).AnyTimes().Return(nil, errorlib.ErrHttpInternal)
 
 	service := NewIssueService(mockRepo)
 
