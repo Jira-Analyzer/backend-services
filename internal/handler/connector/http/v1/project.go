@@ -48,7 +48,6 @@ func (handler *ProjectHandler) InsertProject(w http.ResponseWriter, r *http.Requ
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(map[string]interface{}{"id": insertedID})
 }
 
 func (handler *ProjectHandler) UpdateProject(w http.ResponseWriter, r *http.Request) {
@@ -74,5 +73,4 @@ func (handler *ProjectHandler) UpdateProject(w http.ResponseWriter, r *http.Requ
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(map[string]interface{}{"message": "Project updated successfully"})
 }
