@@ -6,7 +6,6 @@ start-dev:
 		up -d
 
 args=
-args=
 .PHONY: stop-dev
 stop-dev:
 	docker-compose \
