@@ -51,7 +51,7 @@ func TestProjectRepository_GetProjectsByRange(t *testing.T) {
 		db.Close()
 	})
 
-	mock.ExpectQuery(`^SELECT (.+) FROM "Project" ORDER BY name OFFSET (.+) ROWS FETCH FIRST (.+) ROW ONLY$`).
+	mock.ExpectQuery(`^SELECT (.+) FROM "Project" ORDER BY id OFFSET (.+) ROWS FETCH FIRST (.+) ROW ONLY$`).
 		WithArgs(0, 2).
 		WillReturnRows(projectRows)
 
