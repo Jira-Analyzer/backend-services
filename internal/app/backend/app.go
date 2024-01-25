@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	provider "github.com/Jira-Analyzer/backend-services/internal/db"
-	handler "github.com/Jira-Analyzer/backend-services/internal/handler/http"
+	handler "github.com/Jira-Analyzer/backend-services/internal/handler/backend/http"
 	"github.com/Jira-Analyzer/backend-services/internal/repository"
-	"github.com/Jira-Analyzer/backend-services/internal/server"
-	"github.com/Jira-Analyzer/backend-services/internal/service"
+	server "github.com/Jira-Analyzer/backend-services/internal/server/backend"
+	service "github.com/Jira-Analyzer/backend-services/internal/service/backend"
 	"github.com/gorilla/mux"
 )
 

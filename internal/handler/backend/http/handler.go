@@ -1,8 +1,8 @@
 package http
 
 import (
-	v1 "github.com/Jira-Analyzer/backend-services/internal/handler/http/v1"
-	"github.com/Jira-Analyzer/backend-services/internal/service"
+	v1 "github.com/Jira-Analyzer/backend-services/internal/handler/backend/http/v1"
+	service "github.com/Jira-Analyzer/backend-services/internal/service/backend"
 	"github.com/gorilla/mux"
 )
 

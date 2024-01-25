@@ -39,4 +39,3 @@ jobs:
       - name: Run Test
         run: |
           go test -v ./... -covermode=count -coverprofile=coverage.out -tags=unit
-          go tool cover -func=coverage.out -o=coverage.out
