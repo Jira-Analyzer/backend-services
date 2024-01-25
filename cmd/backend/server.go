@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Jira-Analyzer/backend-services/internal/app"
+	"github.com/Jira-Analyzer/backend-services/internal/app/backend"
 	"github.com/Jira-Analyzer/backend-services/internal/config"
 	"github.com/Jira-Analyzer/backend-services/internal/logger"
 	log "github.com/sirupsen/logrus"
@@ -17,11 +17,11 @@ const (
 )
 
 func main() {
-	conf, err := config.ReadConfigFromYAML(configFile)
+	conf, err := config.ReadConfigFromYAML[backend.Config](configFile)
 	if err != nil {
 		panic(fmt.Errorf("Read of config from '%s' failed: %w", configFile, err))
 	}
-	err = conf.ValidateConfig()
+	err = config.ValidateConfig(conf)
 	if err != nil {
 		panic(fmt.Errorf("'%s' parsing failed: %w", configFile, err))
 	}
@@ -45,7 +45,7 @@ func main() {
 	notify := make(chan error, 1)
 	defer close(notify)
 
-	app, err := app.NewApp(conf, notify)
+	app, err := backend.NewApp(conf, notify)
 	if err != nil {
 		log.Fatal(err)
 	}
