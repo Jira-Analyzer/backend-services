@@ -1,12 +1,6 @@
 package jira
 
-/*type FetchProjectResponseDTO struct {
-	Projects []*domain.Project `json:"projects"`
-}
-
-type FetchIssueResponseDTO struct {
-	Issues []*domain.Issue `json:"issues"`
-}*/
+import "time"
 
 type IssuesList struct {
 	IssuesCount int     `json:"total"`
@@ -39,9 +33,9 @@ type IssueFields struct {
 	AssigneeName struct {
 		Name string `json:"name"`
 	} `json:"assignee"`
-	CreatedTime string `json:"created"`
-	UpdatedTime string `json:"updated"`
-	ClosedTime  string `json:"resolutiondate"`
+	CreatedTime time.Time `json:"created"`
+	UpdatedTime time.Time `json:"updated"`
+	ClosedTime  time.Time `json:"resolutiondate"`
 }
 
 type IssueStatusChange struct {
