@@ -1,1 +1,5 @@
-package connector
+package main
+
+func main() {
+
+}

@@ -1,13 +1,11 @@
 package jira
 
-import (
-	"time"
-)
+import "time"
 
 type Config struct {
 	JiraUrl          string        `yaml:"jiraUrl"`
-	IssuesPerRequest int64         `yaml:"issuesPerRequest"`
-	ThreadCount      int64         `yaml:"threadCount"`
+	IssuesPerRequest int           `yaml:"issuesPerRequest"`
+	ThreadCount      int           `yaml:"threadCount"`
 	MaxTimeSleep     time.Duration `yaml:"maxTimeSleep"`
 	MinTimeSleep     time.Duration `yaml:"minTimeSleep"`
 }
