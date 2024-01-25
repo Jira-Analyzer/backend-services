@@ -1,15 +1,20 @@
 package service
 
-import "github.com/Jira-Analyzer/backend-services/internal/repository"
+import (
+	"github.com/Jira-Analyzer/backend-services/internal/client/jira"
+	"github.com/Jira-Analyzer/backend-services/internal/repository"
+)
 
-type Services struct {
-	IssueService   IIssueService
-	ProjectService IProjectService
+type Service struct {
+	client       *jira.Client
+	issuesRepo   repository.IIssueRepository
+	projectsRepo repository.IProjectRepository
 }
 
-func NewServices(repo *repository.Repositories) *Services {
-	return &Services{
-		IssueService:   NewIssueService(repo.IssueRepository),
-		ProjectService: NewProjectService(repo.ProjectRepository),
+func NewService(config *jira.Config, repositories *repository.Repositories) *Service {
+	return &Service{
+		client:       jira.NewClient(config),
+		issuesRepo:   repositories.IssueRepository,
+		projectsRepo: repositories.ProjectRepository,
 	}
 }

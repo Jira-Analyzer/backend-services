@@ -1,18 +1,13 @@
 package service
 
 import (
-	"context"
-	"github.com/Jira-Analyzer/backend-services/internal/domain"
+	"github.com/Jira-Analyzer/backend-services/internal/client/jira/dto"
 )
 
-//go:generate mockgen --build_flags=--mod=mod -destination mock/mock_service.go . IIssueService,IProjectService
+//go:generate mockgen --build_flags=--mod=mod -destination mock/mock_service.go . IService
 
-type IIssueService interface {
-	InsertIssue(ctx context.Context, issue domain.Issue) (int, error)
-	UpdateIssue(ctx context.Context, issue domain.Issue) error
-}
-
-type IProjectService interface {
-	InsertProject(ctx context.Context, project domain.Project) (int, error)
-	UpdateProject(ctx context.Context, project domain.Project) error
+type IService interface {
+	FetchProjects(page int, count int) (*dto.ProjectsResponse, error)
+	FetchProject(id int) error
+	FetchIssue(projectId int) error
 }

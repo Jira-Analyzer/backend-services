@@ -1,77 +1,46 @@
 package v1
 
 import (
-	"encoding/json"
-	"github.com/Jira-Analyzer/backend-services/internal/domain"
-	service "github.com/Jira-Analyzer/backend-services/internal/service/connector"
-	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 	"net/http"
+	"strconv"
+
+	errorlib "github.com/Jira-Analyzer/backend-services/internal/error"
+	service "github.com/Jira-Analyzer/backend-services/internal/service/connector"
+	"github.com/Jira-Analyzer/backend-services/internal/util"
+	"github.com/gorilla/mux"
 )
 
 type IssueHandler struct {
-	issueService service.IIssueService
+	service *service.Service
 }
 
-func NewIssueHandler(issueService service.IIssueService) *IssueHandler {
+func NewIssueHandler(service *service.Service) *IssueHandler {
 	return &IssueHandler{
-		issueService: issueService,
+		service: service,
 	}
 }
 
 func (handler *IssueHandler) SetRouter(router *mux.Router) {
-	router.HandleFunc("/issues/create", handler.InsertIssue).Methods(http.MethodPost)
-	router.HandleFunc("/issues/update", handler.UpdateIssue).Methods(http.MethodPatch)
+	router.HandleFunc("/issues/fetch", handler.FetchIssueByID).Methods(http.MethodPatch).Queries("project_id", "{project_id}")
 }
 
-func (handler *IssueHandler) InsertIssue(w http.ResponseWriter, r *http.Request) {
-	var issue domain.Issue
-
-	if err := json.NewDecoder(r.Body).Decode(&issue); err != nil {
-		logrus.Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+func (handler *IssueHandler) FetchIssueByID(w http.ResponseWriter, r *http.Request) {
+	projectId, err := strconv.Atoi(mux.Vars(r)["project_id"])
+	if err != nil || projectId < 0 {
+		jsonErr := errorlib.GetJSONError("invalid query 'project_id' parameter", errorlib.ErrHttpInvalidRequestData)
+		w.WriteHeader(jsonErr.Error.Code)
+		util.WriteJSON(w, &jsonErr)
 		return
 	}
 
-	insertedID, err := handler.issueService.InsertIssue(r.Context(), issue)
+	err = handler.service.FetchIssue(projectId)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "Failed to create issue", http.StatusInternalServerError)
+		jsonErr := errorlib.GetJSONError("failed to fetch issue", errorlib.ErrHttpInternal)
+		w.WriteHeader(jsonErr.Error.Code)
+		util.WriteJSON(w, &jsonErr)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-
-	err = json.NewEncoder(w).Encode(map[string]interface{}{"id": insertedID})
-	if err = json.NewEncoder(w).Encode(map[string]interface{}{"id": insertedID}); err != nil {
-		logrus.Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
-func (handler *IssueHandler) UpdateIssue(w http.ResponseWriter, r *http.Request) {
-	var issue domain.Issue
-
-	if err := json.NewDecoder(r.Body).Decode(&issue); err != nil {
-		logrus.Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err := handler.issueService.UpdateIssue(r.Context(), issue)
-	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "Failed to update issue", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(map[string]interface{}{"message": "Issue updated successfully"}); err != nil {
-		logrus.Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	response := map[string]interface{}{"message": "Project updated successfully"}
+	util.WriteJSON(w, response)
 }

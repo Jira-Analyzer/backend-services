@@ -12,6 +12,7 @@ package mock_backend
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	domain "github.com/Jira-Analyzer/backend-services/internal/domain"
 	gomock "go.uber.org/mock/gomock"
@@ -40,6 +41,48 @@ func (m *MockIIssueService) EXPECT() *MockIIssueServiceMockRecorder {
 	return m.recorder
 }
 
+// FilterClosedIssues mocks base method.
+func (m *MockIIssueService) FilterClosedIssues(arg0 context.Context, arg1 []domain.Issue) []domain.Issue {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FilterClosedIssues", arg0, arg1)
+	ret0, _ := ret[0].([]domain.Issue)
+	return ret0
+}
+
+// FilterClosedIssues indicates an expected call of FilterClosedIssues.
+func (mr *MockIIssueServiceMockRecorder) FilterClosedIssues(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilterClosedIssues", reflect.TypeOf((*MockIIssueService)(nil).FilterClosedIssues), arg0, arg1)
+}
+
+// FilterOpenedIssues mocks base method.
+func (m *MockIIssueService) FilterOpenedIssues(arg0 context.Context, arg1 []domain.Issue) []domain.Issue {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FilterOpenedIssues", arg0, arg1)
+	ret0, _ := ret[0].([]domain.Issue)
+	return ret0
+}
+
+// FilterOpenedIssues indicates an expected call of FilterOpenedIssues.
+func (mr *MockIIssueServiceMockRecorder) FilterOpenedIssues(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FilterOpenedIssues", reflect.TypeOf((*MockIIssueService)(nil).FilterOpenedIssues), arg0, arg1)
+}
+
+// GetAverageTimeSpent mocks base method.
+func (m *MockIIssueService) GetAverageTimeSpent(arg0 context.Context, arg1 []domain.Issue) time.Duration {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAverageTimeSpent", arg0, arg1)
+	ret0, _ := ret[0].(time.Duration)
+	return ret0
+}
+
+// GetAverageTimeSpent indicates an expected call of GetAverageTimeSpent.
+func (mr *MockIIssueServiceMockRecorder) GetAverageTimeSpent(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAverageTimeSpent", reflect.TypeOf((*MockIIssueService)(nil).GetAverageTimeSpent), arg0, arg1)
+}
+
 // GetIssuesByProject mocks base method.
 func (m *MockIIssueService) GetIssuesByProject(arg0 context.Context, arg1 int) ([]domain.Issue, error) {
 	m.ctrl.T.Helper()
@@ -53,6 +96,20 @@ func (m *MockIIssueService) GetIssuesByProject(arg0 context.Context, arg1 int) (
 func (mr *MockIIssueServiceMockRecorder) GetIssuesByProject(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIssuesByProject", reflect.TypeOf((*MockIIssueService)(nil).GetIssuesByProject), arg0, arg1)
+}
+
+// GetWeekAverageCreatedNumber mocks base method.
+func (m *MockIIssueService) GetWeekAverageCreatedNumber(arg0 context.Context, arg1 []domain.Issue) int {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWeekAverageCreatedNumber", arg0, arg1)
+	ret0, _ := ret[0].(int)
+	return ret0
+}
+
+// GetWeekAverageCreatedNumber indicates an expected call of GetWeekAverageCreatedNumber.
+func (mr *MockIIssueServiceMockRecorder) GetWeekAverageCreatedNumber(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWeekAverageCreatedNumber", reflect.TypeOf((*MockIIssueService)(nil).GetWeekAverageCreatedNumber), arg0, arg1)
 }
 
 // MockIProjectService is a mock of IProjectService interface.

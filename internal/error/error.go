@@ -6,6 +6,10 @@ import (
 )
 
 var ErrHttpInternal = errors.New("some internal error happened")
+var ErrHttpConflict = errors.New("server state conflict")
+var ErrHttpTimeout = errors.New("request timeout")
+var ErrHttpBadGateway = errors.New("request timeout")
+var ErrHttpGatewayTimeout = errors.New("gateway timeout")
 var ErrHttpBadRequest = errors.New("probably bad request")
 var ErrHttpInvalidRequestData = errors.New("some data is invalid")
 
@@ -26,6 +30,14 @@ func GetJSONError(msg string, err error) *JSONError {
 		jsonErr.Error.Code = http.StatusBadRequest
 	case errors.Is(err, ErrHttpInvalidRequestData):
 		jsonErr.Error.Code = http.StatusUnprocessableEntity
+	case errors.Is(err, ErrHttpConflict):
+		jsonErr.Error.Code = http.StatusConflict
+	case errors.Is(err, ErrHttpTimeout):
+		jsonErr.Error.Code = http.StatusRequestTimeout
+	case errors.Is(err, ErrHttpGatewayTimeout):
+		jsonErr.Error.Code = http.StatusGatewayTimeout
+	case errors.Is(err, ErrHttpBadGateway):
+		jsonErr.Error.Code = http.StatusBadGateway
 	default:
 		jsonErr.Error.Code = http.StatusInternalServerError
 	}

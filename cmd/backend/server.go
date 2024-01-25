@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	configFile string = "configs/config.yaml"
+	configFile string = "configs/backend/config.yaml"
 )
 
 func main() {

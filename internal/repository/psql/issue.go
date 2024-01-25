@@ -27,32 +27,20 @@ func (repository *IssueRepository) GetIssuesByProject(ctx context.Context, proje
 	return issues, nil
 }
 
-func (repository *IssueRepository) InsertIssue(ctx context.Context, issue domain.Issue) (int, error) {
-	query := `
-		INSERT INTO issues (project_id, author_id, reporter_id, key, summary, type, priority, status, created_time, closed_time, updated_time, time_spent)
-		VALUES (:project_id, :author_id, :reporter_id, :key, :summary, :type, :priority, :status, :created_time, :closed_time, :updated_time, :time_spent)
+func (repository *IssueRepository) InsertIssue(ctx context.Context, issue domain.Issue) error {
+	queryIssue := `
+		INSERT INTO "Issue" (id, project_id, author, reporter, key, summary, type, priority, status, created_time, closed_time, updated_time, time_spent)
+		VALUES (:id, :project_id, :author, :reporter, :key, :summary, :type, :priority, :status, :created_time, :closed_time, :updated_time, :time_spent)
 		RETURNING id;
 	`
 
-	var insertedID int
-	rows, err := repository.db.NamedQueryContext(ctx, query, issue)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		if err := rows.Scan(&insertedID); err != nil {
-			return 0, err
-		}
-	}
-
-	return insertedID, nil
+	_, err := repository.db.NamedExecContext(ctx, queryIssue, issue)
+	return err
 }
 
 func (repository *IssueRepository) UpdateIssue(ctx context.Context, issue domain.Issue) error {
 	query := `
-		UPDATE issues
+		UPDATE "Issue"
 		SET project_id=:project_id, author_id=:author_id, reporter_id=:reporter_id, key=:key, summary=:summary, type=:type, priority=:priority, status=:status, created_time=:created_time, closed_time=:closed_time, updated_time=:updated_time, time_spent=:time_spent
 		WHERE id=:id;
 	`

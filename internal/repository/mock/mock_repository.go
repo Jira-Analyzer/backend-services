@@ -56,12 +56,11 @@ func (mr *MockIIssueRepositoryMockRecorder) GetIssuesByProject(arg0, arg1 any) *
 }
 
 // InsertIssue mocks base method.
-func (m *MockIIssueRepository) InsertIssue(arg0 context.Context, arg1 domain.Issue) (int, error) {
+func (m *MockIIssueRepository) InsertIssue(arg0 context.Context, arg1 domain.Issue) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "InsertIssue", arg0, arg1)
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // InsertIssue indicates an expected call of InsertIssue.
@@ -153,12 +152,11 @@ func (mr *MockIProjectRepositoryMockRecorder) GetProjectsByRange(arg0, arg1, arg
 }
 
 // InsertProject mocks base method.
-func (m *MockIProjectRepository) InsertProject(arg0 context.Context, arg1 domain.Project) (int, error) {
+func (m *MockIProjectRepository) InsertProject(arg0 context.Context, arg1 *domain.Project) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "InsertProject", arg0, arg1)
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // InsertProject indicates an expected call of InsertProject.
@@ -168,7 +166,7 @@ func (mr *MockIProjectRepositoryMockRecorder) InsertProject(arg0, arg1 any) *gom
 }
 
 // UpdateProject mocks base method.
-func (m *MockIProjectRepository) UpdateProject(arg0 context.Context, arg1 domain.Project) error {
+func (m *MockIProjectRepository) UpdateProject(arg0 context.Context, arg1 *domain.Project) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateProject", arg0, arg1)
 	ret0, _ := ret[0].(error)

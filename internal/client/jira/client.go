@@ -2,15 +2,17 @@ package jira
 
 import (
 	"encoding/json"
-	"errors"
-	"github.com/sirupsen/logrus"
+	"github.com/Jira-Analyzer/backend-services/internal/client/jira/dto"
 	"io"
 	"math"
 	"net/http"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
+
+	"github.com/Jira-Analyzer/backend-services/internal/domain"
+	errorlib "github.com/Jira-Analyzer/backend-services/internal/error"
+	"github.com/sirupsen/logrus"
 )
 
 type Client struct {
@@ -22,7 +24,7 @@ type Client struct {
 	minTimeSleep     time.Duration
 }
 
-func NewClient(config Config) *Client {
+func NewClient(config *Config) *Client {
 	return &Client{
 		baseURL:          config.JiraUrl,
 		client:           &http.Client{},
@@ -33,81 +35,93 @@ func NewClient(config Config) *Client {
 	}
 }
 
-func (c *Client) FetchProjects(limit int, page int, search string, projectKey string) (*ProjectsResponse, error) {
+func (c *Client) FetchProject(id int) (*domain.Project, error) {
+	key := strconv.Itoa(id)
+	response, err := http.Get(c.baseURL + "/rest/api/2/project/" + key)
+	if err != nil {
+		logrus.Error("Unable to get project details")
+		return nil, err
+	}
 
+	var jiraProject dto.JiraProject
+	if err := json.NewDecoder(response.Body).Decode(&jiraProject); err != nil {
+		return nil, err
+	}
+
+	project := &domain.Project{
+		Name:        jiraProject.Name,
+		Id:          id,
+		Description: jiraProject.Description,
+		AvatarUrl:   jiraProject.AvatarUrls.Url,
+		Type:        jiraProject.Type,
+		Archived:    jiraProject.Archived,
+	}
+
+	return project, nil
+}
+
+func (c *Client) FetchProjects(page int, count int) (*dto.ProjectsResponse, error) {
 	response, err := http.Get(c.baseURL + "/rest/api/2/project")
 	if err != nil {
-		logrus.Error("Unable to get projects list ")
-		return &ProjectsResponse{}, err
+		logrus.Error("Unable to get projects list")
+		return &dto.ProjectsResponse{}, err
 	}
 
-	body, err := io.ReadAll(response.Body)
-
-	if err != nil {
-		return &ProjectsResponse{}, err
+	var jiraProjects []dto.JiraProject
+	if err := json.NewDecoder(response.Body).Decode(&jiraProjects); err != nil {
+		return &dto.ProjectsResponse{}, err
 	}
 
-	var jiraProjects []JiraProject
-	err = json.Unmarshal(body, &jiraProjects)
-
-	if err != nil {
-		return &ProjectsResponse{}, err
-	}
-
-	var projects []Project
-
-	projectsCount := 0
-
+	projects := make([]dto.Project, 0)
 	for _, elem := range jiraProjects {
-		if strings.Contains(strings.ToLower(projectKey), strings.ToLower(search)) {
-			projectsCount++
-			projects = append(projects, Project{
-				Name: elem.Name,
-				Link: elem.Link,
-			})
-		}
+		projects = append(projects, dto.Project{
+			Name: elem.Name,
+			Link: elem.Link,
+		})
 	}
 
-	startIndex := limit * (page - 1)
-	endIndex := startIndex + limit
-	if endIndex >= len(projects) {
+	startIndex := count * (page - 1)
+	endIndex := startIndex + count
+	if endIndex > len(projects) {
 		endIndex = len(projects)
 	}
-
-	return &ProjectsResponse{
+	projectsCount := len(projects)
+	return &dto.ProjectsResponse{
 		Projects: projects[startIndex:endIndex],
-		PageInfo: PageInfo{
-			PageCount:     int(math.Ceil(float64(projectsCount) / float64(limit))),
+		PageInfo: dto.PageInfo{
+			PageCount:     int(math.Ceil(float64(projectsCount) / float64(count))),
 			CurrentPage:   page,
 			ProjectsCount: projectsCount,
 		},
 	}, nil
 }
 
-func (c *Client) FetchIssues(projectKey string, timeToWaitMs int) (map[Issue]struct{}, error) {
+func (c *Client) FetchIssues(id int, timeToWaitMs int) ([]dto.Issue, error) {
+	projectId := strconv.Itoa(id)
 	httpClient := &http.Client{}
 	response, err := httpClient.Get(c.baseURL +
-		"/rest/api/2/search?jql=project=" + projectKey + "&expand=changelog&startAt=0&maxResults=1")
+		"/rest/api/2/search?jql=project=" + projectId + "&expand=changelog&startAt=0&maxResults=1")
 
 	if err != nil || response.StatusCode != http.StatusOK {
-		logrus.Error("Unable to get issues for project " + projectKey)
-		return map[Issue]struct{}{}, nil
+		logrus.Error("Unable to get issues for project " + projectId)
+		return nil, errorlib.ErrHttpBadGateway
 	}
 
 	body, _ := io.ReadAll(response.Body)
-	var issueResponse IssuesList
+	var issueResponse dto.IssuesList
 	if err = json.Unmarshal(body, &issueResponse); err != nil {
-		logrus.Error("Error while unmarshalling issue response")
+		logrus.Error("Error while unmarshalling issue response: %w", err)
+		return nil, errorlib.ErrHttpInternal
 	}
 
 	totalIssuesCount := issueResponse.IssuesCount
 
 	if totalIssuesCount == 0 {
-		return map[Issue]struct{}{}, nil
+		return make([]dto.Issue, 0), nil
 	}
 
-	issues := map[Issue]struct{}{}
-	issues[issueResponse.Issues[0]] = struct{}{}
+	issues := make([]dto.Issue, 1)
+	issues = append(issues, issueResponse.Issues[0])
 
 	waitGroup := sync.WaitGroup{}
 	mutex := sync.Mutex{}
@@ -133,7 +147,7 @@ func (c *Client) FetchIssues(projectKey string, timeToWaitMs int) (map[Issue]str
 					startAt := threadStartIndex + j*issuesPerRequest
 					if startAt < totalIssuesCount {
 						requestString := c.baseURL + "/rest/api/2/search?jql=project=" +
-							projectKey + "&expand=changelog&startAt=" + strconv.Itoa(startAt) +
+							projectId + "&expand=changelog&startAt=" + strconv.Itoa(startAt) +
 							"&maxResults=" + strconv.Itoa(issuesPerRequest)
 
 						response, requestErr := httpClient.Get(requestString)
@@ -145,12 +159,12 @@ func (c *Client) FetchIssues(projectKey string, timeToWaitMs int) (map[Issue]str
 							return
 						}
 
-						var issueResponse IssuesList
+						var issueResponse dto.IssuesList
 						_ = json.Unmarshal(body, &issueResponse)
 
 						mutex.Lock()
 						for _, elem := range issueResponse.Issues {
-							issues[elem] = struct{}{}
+							issues = append(issues, elem)
 						}
 						mutex.Unlock()
 					}
@@ -164,13 +178,13 @@ func (c *Client) FetchIssues(projectKey string, timeToWaitMs int) (map[Issue]str
 		time.Sleep(time.Duration(timeToWaitMs) * time.Millisecond)
 		newTimeToSleep := int(math.Ceil(float64(timeToWaitMs) * math.Phi))
 		logrus.Error("Error while downloading issues for project \"" +
-			projectKey + "\", waiting now" + strconv.Itoa(timeToWaitMs) + "ms")
+			projectId + "\", waiting now" + strconv.Itoa(timeToWaitMs) + "ms")
 
 		if time.Duration(newTimeToSleep) > c.maxTimeSleep {
-			return map[Issue]struct{}{}, errors.New("A lot of time to sleep")
+			return nil, errorlib.ErrHttpGatewayTimeout
 		}
 
-		return c.FetchIssues(projectKey, newTimeToSleep)
+		return c.FetchIssues(id, newTimeToSleep)
 	}
 
 	return issues, nil
