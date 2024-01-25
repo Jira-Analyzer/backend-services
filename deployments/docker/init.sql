@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS "Author" (
 CREATE TABLE IF NOT EXISTS "Issue" (
   id integer PRIMARY KEY,
   project_id integer REFERENCES "Project" (id) ON DELETE CASCADE ON UPDATE CASCADE,
-  author_id integer REFERENCES "Author" (id) ON DELETE RESTRICT ON UPDATE CASCADE,
-  reporter_id integer REFERENCES "Author" (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  author TEXT,
+  reporter TEXT,
   key TEXT,
   summary TEXT,
   type TEXT,

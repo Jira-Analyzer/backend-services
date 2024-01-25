@@ -1,76 +1,72 @@
 package v1
 
 import (
-	"encoding/json"
 	"net/http"
+	"strconv"
 
-	"github.com/Jira-Analyzer/backend-services/internal/domain"
+	errorlib "github.com/Jira-Analyzer/backend-services/internal/error"
 	service "github.com/Jira-Analyzer/backend-services/internal/service/connector"
+	"github.com/Jira-Analyzer/backend-services/internal/util"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
 
 type ProjectHandler struct {
-	projectService service.IProjectService
+	service *service.Service
 }
 
-func NewProjectHandler(service service.IProjectService) *ProjectHandler {
+func NewProjectHandler(service *service.Service) *ProjectHandler {
 	return &ProjectHandler{
-		projectService: service,
+		service: service,
 	}
 }
 
 func (handler *ProjectHandler) SetRouter(router *mux.Router) {
-	router.HandleFunc("/projects/create", handler.InsertProject).Methods(http.MethodPost)
-	router.HandleFunc("/projects/update", handler.UpdateProject).Methods(http.MethodPatch)
+	router.HandleFunc("/projects/fetch", handler.FetchAllProjects).Methods(http.MethodPatch).Queries("limit", "{limit}", "page", "{page}")
+	router.HandleFunc("/projects/{id:[0-9]+}/fetch", handler.FetchProjectByID).Methods(http.MethodPatch)
 }
 
-func (handler *ProjectHandler) InsertProject(w http.ResponseWriter, r *http.Request) {
-	var project domain.Project
-
-	if err := json.NewDecoder(r.Body).Decode(&project); err != nil {
-		logrus.Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+func (handler *ProjectHandler) FetchAllProjects(w http.ResponseWriter, r *http.Request) {
+	limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
+	if err != nil || limit <= 0 {
+		jsonErr := errorlib.GetJSONError("invalid query 'limit' parameter", errorlib.ErrHttpInvalidRequestData)
+		w.WriteHeader(jsonErr.Error.Code)
+		util.WriteJSON(w, &jsonErr)
 		return
 	}
 
-	insertedID, err := handler.projectService.InsertProject(r.Context(), project)
+	page, err := strconv.Atoi(r.URL.Query().Get("page"))
+	if err != nil || page <= 0 {
+		jsonErr := errorlib.GetJSONError("invalid query 'page' parameter", errorlib.ErrHttpInvalidRequestData)
+		w.WriteHeader(jsonErr.Error.Code)
+		util.WriteJSON(w, &jsonErr)
+		return
+	}
+
+	projects, err := handler.service.FetchProjects(page, limit)
 	if err != nil {
 		logrus.Error(err)
-		http.Error(w, "Failed to create project", http.StatusInternalServerError)
+		jsonErr := errorlib.GetJSONError("failed to fetch projects", errorlib.ErrHttpInternal)
+		w.WriteHeader(jsonErr.Error.Code)
+		util.WriteJSON(w, &jsonErr)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	if err = json.NewEncoder(w).Encode(map[string]interface{}{"id": insertedID}); err != nil {
-		logrus.Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	util.WriteJSON(w, projects)
 }
 
-func (handler *ProjectHandler) UpdateProject(w http.ResponseWriter, r *http.Request) {
-	var project domain.Project
+func (handler *ProjectHandler) FetchProjectByID(w http.ResponseWriter, r *http.Request) {
+	projectId, _ := strconv.Atoi(mux.Vars(r)["id"])
 
-	if err := json.NewDecoder(r.Body).Decode(&project); err != nil {
-		logrus.Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err := handler.projectService.UpdateProject(r.Context(), project)
+	err := handler.service.FetchProject(projectId)
 	if err != nil {
 		logrus.Error(err)
-		http.Error(w, "Failed to update project", http.StatusInternalServerError)
+		jsonErr := errorlib.GetJSONError("failed to fetch project", errorlib.ErrHttpInternal)
+		w.WriteHeader(jsonErr.Error.Code)
+		util.WriteJSON(w, &jsonErr)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(map[string]interface{}{"message": "Project updated successfully"}); err != nil {
-		logrus.Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	response := map[string]interface{}{"message": "Project updated successfully"}
+	util.WriteJSON(w, response)
 }

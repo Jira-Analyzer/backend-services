@@ -4,9 +4,14 @@ db:
   user: "pguser"
   password: "pgpwd"
 connector-service:
-  local_http_server_port: 8003
-  jiraUrl: https://issues.apache.org/jira
-  issuesPerRequest: 100
-  threadCount: 10
-  maxTimeSleep: 8000
-  minTimeSleep: 50
+  host: "localhost:8003"
+  jira-url: https://issues.apache.org/jira
+  issues-per-request: 100
+  thread-count: 10
+  max-time-sleep: 8000s
+  min-time-sleep: 50s
+  write-timeout: 15s
+  read-timeout: 15s
+logger:
+  log-file: "logs.log"
+  warn-file: "err_logs.log"

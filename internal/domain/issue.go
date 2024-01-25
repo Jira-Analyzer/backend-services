@@ -5,8 +5,8 @@ import "time"
 type Issue struct {
 	Id          int
 	ProjectId   int `db:"project_id"`
-	AuthorId    int `db:"author_id"`
-	ReporterId  int `db:"reporter_id"`
+	Author      string
+	Reporter    string
 	Key         string
 	Summary     string
 	Type        string

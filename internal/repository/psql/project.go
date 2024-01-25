@@ -46,32 +46,18 @@ func (repository *ProjectRepository) GetProjectsByRange(ctx context.Context, off
 	return projects, nil
 }
 
-func (repository *ProjectRepository) InsertProject(ctx context.Context, project domain.Project) (int, error) {
+func (repository *ProjectRepository) InsertProject(ctx context.Context, project *domain.Project) error {
 	query := `
-		INSERT INTO projects (name, description, avatar_url, type, archived)
-		VALUES (:name, :description, :avatar_url, :type, :archived)
-		RETURNING id;
+		INSERT INTO "Project" (id, name, description, avatar_url, type, archived)
+		VALUES (:id, :name, :description, :avatar_url, :type, :archived);
 	`
-
-	var insertedID int
-	rows, err := repository.db.NamedQueryContext(ctx, query, project)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		if err := rows.Scan(&insertedID); err != nil {
-			return 0, err
-		}
-	}
-
-	return insertedID, nil
+	_, err := repository.db.NamedExecContext(ctx, query, project)
+	return err
 }
 
-func (repository *ProjectRepository) UpdateProject(ctx context.Context, project domain.Project) error {
+func (repository *ProjectRepository) UpdateProject(ctx context.Context, project *domain.Project) error {
 	query := `
-		UPDATE projects
+		UPDATE "Project"
 		SET name=:name, description=:description, avatar_url=:avatar_url, type=:type, archived=:archived
 		WHERE id=:id;
 	`

@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/Jira-Analyzer/backend-services/internal/handler/connector/http/v1"
+	v1 "github.com/Jira-Analyzer/backend-services/internal/handler/connector/http/v1"
 	service "github.com/Jira-Analyzer/backend-services/internal/service/connector"
 	"github.com/gorilla/mux"
 )
@@ -10,7 +10,7 @@ type Handler struct {
 	v1 *v1.Handler
 }
 
-func NewHandler(services *service.Services) *Handler {
+func NewHandler(services *service.Service) *Handler {
 	return &Handler{
 		v1: v1.NewHandler(services),
 	}

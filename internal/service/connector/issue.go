@@ -2,24 +2,21 @@ package service
 
 import (
 	"context"
-	"github.com/Jira-Analyzer/backend-services/internal/domain"
-	"github.com/Jira-Analyzer/backend-services/internal/repository"
+	"fmt"
+	errorlib "github.com/Jira-Analyzer/backend-services/internal/error"
 )
 
-type IssueService struct {
-	issueRepo repository.IIssueRepository
-}
-
-func NewIssueService(issueRepo repository.IIssueRepository) *IssueService {
-	return &IssueService{
-		issueRepo: issueRepo,
+func (s *Service) FetchIssue(projectId int) error {
+	issues, err := s.client.FetchIssues(projectId, 100)
+	if err != nil {
+		return fmt.Errorf("failed to fetch issues from Jira: %w", errorlib.ErrHttpInternal)
 	}
-}
 
-func (service *IssueService) InsertIssue(ctx context.Context, issue domain.Issue) (int, error) {
-	return service.issueRepo.InsertIssue(ctx, issue)
-}
+	for _, issue := range issues {
+		if err := s.issuesRepo.InsertIssue(context.Background(), issue.ToDomainIssue(projectId)); err != nil {
+			return fmt.Errorf("failed to insert issue into database: %w", errorlib.ErrHttpConflict)
+		}
+	}
 
-func (service *IssueService) UpdateIssue(ctx context.Context, issue domain.Issue) error {
-	return service.issueRepo.UpdateIssue(ctx, issue)
+	return nil
 }

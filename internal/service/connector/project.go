@@ -2,24 +2,46 @@ package service
 
 import (
 	"context"
-	"github.com/Jira-Analyzer/backend-services/internal/domain"
-	"github.com/Jira-Analyzer/backend-services/internal/repository"
+	"database/sql"
+	"errors"
+	"fmt"
+	"github.com/Jira-Analyzer/backend-services/internal/client/jira/dto"
+
+	errorlib "github.com/Jira-Analyzer/backend-services/internal/error"
+	"github.com/sirupsen/logrus"
 )
 
-type ProjectService struct {
-	projectRepo repository.IProjectRepository
-}
-
-func NewProjectService(repo repository.IProjectRepository) *ProjectService {
-	return &ProjectService{
-		projectRepo: repo,
+func (s *Service) FetchProjects(page, count int) (*dto.ProjectsResponse, error) {
+	projects, err := s.client.FetchProjects(page, count)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch projects from Jira: %w", errorlib.ErrHttpInternal)
 	}
+	return projects, nil
 }
 
-func (service *ProjectService) InsertProject(ctx context.Context, project domain.Project) (int, error) {
-	return service.projectRepo.InsertProject(ctx, project)
-}
+func (s *Service) FetchProject(id int) error {
+	project, err := s.client.FetchProject(id)
+	if err != nil {
+		return fmt.Errorf("failed to fetch project details from Jira: %w", errorlib.ErrHttpInternal)
+	}
 
-func (service *ProjectService) UpdateProject(ctx context.Context, project domain.Project) error {
-	return service.projectRepo.UpdateProject(ctx, project)
+	dbErr := s.projectsRepo.InsertProject(context.Background(), project)
+	if errors.Is(dbErr, sql.ErrNoRows) {
+		return fmt.Errorf("project with key '%c' already exists: %w", id, errorlib.ErrHttpConflict)
+	} else if err != nil {
+		return fmt.Errorf("failed to check project existence in database: %w", errorlib.ErrHttpInternal)
+	}
+	logrus.Info(id)
+	issues, err := s.client.FetchIssues(id, 100)
+	if err != nil {
+		return fmt.Errorf("failed to fetch issues from Jira: %w", errorlib.ErrHttpInternal)
+	}
+
+	for _, issue := range issues {
+		if err := s.issuesRepo.InsertIssue(context.Background(), issue.ToDomainIssue(id)); err != nil {
+			return fmt.Errorf("issue with key '%s' already exists: %w", issue.Id, errorlib.ErrHttpConflict)
+		}
+	}
+
+	return nil
 }
