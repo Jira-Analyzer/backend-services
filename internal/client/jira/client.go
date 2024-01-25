@@ -18,8 +18,8 @@ type Client struct {
 	client           *http.Client
 	issuesPerRequest int
 	threadCount      int
-	maxTimeSleep     int
-	minTimeSleep     int
+	maxTimeSleep     time.Duration
+	minTimeSleep     time.Duration
 }
 
 func NewClient(config Config) *Client {
@@ -34,24 +34,10 @@ func NewClient(config Config) *Client {
 }
 
 func (c *Client) FetchProjects(limit int, page int, search string, projectKey string) (*ProjectsResponse, error) {
-	/*url := fmt.Sprintf("%s/rest/api/2/project", c.baseURL)
-
-	resp, err := c.client.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var dto FetchProjectResponseDTO
-	if err := json.NewDecoder(resp.Body).Decode(&dto); err != nil {
-		return nil, err
-	}
-
-	return &dto, nil*/
 
 	response, err := http.Get(c.baseURL + "/rest/api/2/project")
 	if err != nil {
-		logrus.Error(logrus.Error, "Unable to get projects list ")
+		logrus.Error("Unable to get projects list ")
 		return &ProjectsResponse{}, err
 	}
 
@@ -99,33 +85,19 @@ func (c *Client) FetchProjects(limit int, page int, search string, projectKey st
 }
 
 func (c *Client) FetchIssues(projectKey string, timeToWaitMs int) (map[Issue]struct{}, error) {
-	/*url := fmt.Sprintf("%s/rest/api/2/search?jql=project=%s", c.baseURL, projectKey)
-
-	resp, err := c.client.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var dto FetchIssueResponseDTO
-	if err := json.NewDecoder(resp.Body).Decode(&dto); err != nil {
-		return nil, err
-	}
-
-	return &dto, nil*/
 	httpClient := &http.Client{}
 	response, err := httpClient.Get(c.baseURL +
 		"/rest/api/2/search?jql=project=" + projectKey + "&expand=changelog&startAt=0&maxResults=1")
 
 	if err != nil || response.StatusCode != http.StatusOK {
-		logrus.Error(logrus.Error, "Unable to get issues for project "+projectKey)
+		logrus.Error("Unable to get issues for project " + projectKey)
 		return map[Issue]struct{}{}, nil
 	}
 
 	body, _ := io.ReadAll(response.Body)
 	var issueResponse IssuesList
 	if err = json.Unmarshal(body, &issueResponse); err != nil {
-		logrus.Error(logrus.Error, "Error while unmarshalling issue response")
+		logrus.Error("Error while unmarshalling issue response")
 	}
 
 	totalIssuesCount := issueResponse.IssuesCount
@@ -152,7 +124,7 @@ func (c *Client) FetchIssues(projectKey string, timeToWaitMs int) (map[Issue]str
 			defer waitGroup.Done()
 			select {
 			case <-stop:
-				logrus.Error(logrus.Error, "Error while reading issues in thread... Stopping all other threads...")
+				logrus.Error("Error while reading issues in thread... Stopping all other threads...")
 				return
 			default:
 				threadStartIndex := (totalIssuesCount/threadCount)*threadNumber + 1
@@ -191,10 +163,10 @@ func (c *Client) FetchIssues(projectKey string, timeToWaitMs int) (map[Issue]str
 	if wasError {
 		time.Sleep(time.Duration(timeToWaitMs) * time.Millisecond)
 		newTimeToSleep := int(math.Ceil(float64(timeToWaitMs) * math.Phi))
-		logrus.Error(logrus.Info, "Error while downloading issues for project \""+
-			projectKey+"\", waiting now"+strconv.Itoa(timeToWaitMs)+"ms")
+		logrus.Error("Error while downloading issues for project \"" +
+			projectKey + "\", waiting now" + strconv.Itoa(timeToWaitMs) + "ms")
 
-		if newTimeToSleep > c.maxTimeSleep {
+		if time.Duration(newTimeToSleep) > c.maxTimeSleep {
 			return map[Issue]struct{}{}, errors.New("A lot of time to sleep")
 		}
 
