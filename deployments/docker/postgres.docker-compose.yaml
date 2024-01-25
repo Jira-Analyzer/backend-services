@@ -9,6 +9,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "${DB_PORT}:5432"
     restart: unless-stopped
@@ -48,3 +49,6 @@ services:
 networks:
   jira-analyzer:
     driver: bridge
+
+volumes:
+  pgdata:

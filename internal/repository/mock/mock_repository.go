@@ -107,6 +107,21 @@ func (m *MockIProjectRepository) EXPECT() *MockIProjectRepositoryMockRecorder {
 	return m.recorder
 }
 
+// GetProjectById mocks base method.
+func (m *MockIProjectRepository) GetProjectById(arg0 context.Context, arg1 int) (*domain.Project, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProjectById", arg0, arg1)
+	ret0, _ := ret[0].(*domain.Project)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProjectById indicates an expected call of GetProjectById.
+func (mr *MockIProjectRepositoryMockRecorder) GetProjectById(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProjectById", reflect.TypeOf((*MockIProjectRepository)(nil).GetProjectById), arg0, arg1)
+}
+
 // GetProjects mocks base method.
 func (m *MockIProjectRepository) GetProjects(arg0 context.Context) ([]domain.Project, error) {
 	m.ctrl.T.Helper()

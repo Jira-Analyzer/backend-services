@@ -17,6 +17,7 @@ type IIssueRepository interface {
 type IProjectRepository interface {
 	GetProjects(context context.Context) ([]domain.Project, error)
 	GetProjectsByRange(ctx context.Context, offset int, count int) ([]domain.Project, error)
+	GetProjectById(ctx context.Context, id int) (*domain.Project, error)
 	InsertProject(ctx context.Context, project domain.Project) (int, error)
 	UpdateProject(ctx context.Context, project domain.Project) error
 }

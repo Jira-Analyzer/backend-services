@@ -15,7 +15,9 @@ stop-dev:
 
 .PHONY: unit-test
 unit-test:
-	go test -cover ./... -tags unit
+	go test -cover ./... -tags=unit  -covermode=count -coverprofile=coverage.out
+	go tool cover -func=coverage.out -o=coverage.out
+	gobadge -filename=coverage.out
 
 .PHONY: gogen
 gogen:

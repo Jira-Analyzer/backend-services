@@ -28,6 +28,15 @@ func (repository *ProjectRepository) GetProjects(ctx context.Context) ([]domain.
 	return projects, nil
 }
 
+func (repository *ProjectRepository) GetProjectById(ctx context.Context, id int) (*domain.Project, error) {
+	var project domain.Project
+	if err := repository.db.GetContext(ctx, &project, `SELECT * FROM "Project" WHERE id=$1`, id); err != nil {
+		return nil, fmt.Errorf("failed to fetch projects due to: %w", errorlib.ErrHttpInternal)
+	}
+
+	return &project, nil
+}
+
 func (repository *ProjectRepository) GetProjectsByRange(ctx context.Context, offset int, count int) ([]domain.Project, error) {
 	projects := make([]domain.Project, 0)
 	if err := repository.db.SelectContext(ctx, &projects, `SELECT * FROM "Project" ORDER BY id OFFSET $1 ROWS FETCH FIRST $2 ROW ONLY`, offset, count); err != nil {

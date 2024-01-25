@@ -4,7 +4,7 @@ import (
 	"github.com/Jira-Analyzer/backend-services/internal/client/jira"
 	provider "github.com/Jira-Analyzer/backend-services/internal/db"
 	"github.com/Jira-Analyzer/backend-services/internal/logger"
-	"github.com/Jira-Analyzer/backend-services/internal/server"
+	server "github.com/Jira-Analyzer/backend-services/internal/server/backend"
 )
 
 type Config struct {
