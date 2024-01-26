@@ -5,6 +5,7 @@ db:
   password: "pgpwd"
 rest-service:
   host: "localhost:8000"
+  connector-host: "localhost:8003"
   resource-timeout: 5s
   analytics-timeout: 15s
   write-timeout: 15s

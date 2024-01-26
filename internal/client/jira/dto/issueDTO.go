@@ -1,10 +1,10 @@
 package dto
 
 import (
-	"github.com/Jira-Analyzer/backend-services/internal/domain"
-	"github.com/sirupsen/logrus"
 	"strconv"
 	"time"
+
+	"github.com/Jira-Analyzer/backend-services/internal/domain"
 )
 
 type IssuesList struct {
@@ -80,7 +80,6 @@ func (issue *Issue) ToDomainIssue(projectId int) domain.Issue {
 	} else {
 		timeSpent = time.Duration(closedTime.Sub(createdTime).Hours())
 	}
-	logrus.Info(createdTime, updatedTime, closedTime, timeSpent)
 	id, _ := strconv.Atoi(issue.Id)
 	return domain.Issue{
 		Id:          id,

@@ -12,8 +12,8 @@ type Handler struct {
 
 func NewHandler(services *service.Services) *Handler {
 	return &Handler{
-		projectHandler: NewProjectHandler(services.ProjectService),
-		issueHandler:   NewIssueHandler(services.IssueService),
+		projectHandler: NewProjectHandler(services),
+		issueHandler:   NewIssueHandler(services),
 	}
 }
 
