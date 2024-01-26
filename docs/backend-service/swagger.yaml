@@ -1,0 +1,386 @@
+basePath: /api/v1
+definitions:
+  domain.Issue:
+    properties:
+      author:
+        type: string
+      closed_time:
+        type: string
+      created_time:
+        type: string
+      id:
+        type: integer
+      key:
+        type: string
+      priority:
+        type: string
+      projectId:
+        type: integer
+      reporter:
+        type: string
+      status:
+        type: string
+      summary:
+        type: string
+      time_spent:
+        type: string
+      type:
+        type: string
+      updated_time:
+        type: string
+    type: object
+  dto.PageInfo:
+    properties:
+      currentPage:
+        type: integer
+      pageCount:
+        type: integer
+      projectsCount:
+        type: integer
+    type: object
+  dto.Project:
+    properties:
+      link:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.ProjectsResponse:
+    properties:
+      pageInfo:
+        $ref: '#/definitions/dto.PageInfo'
+      projects:
+        items:
+          $ref: '#/definitions/dto.Project'
+        type: array
+    type: object
+  errorlib.JSONError:
+    properties:
+      error:
+        properties:
+          code:
+            type: integer
+          msg:
+            type: string
+        type: object
+    type: object
+  v1.issuesDTO:
+    properties:
+      _links:
+        items:
+          type: string
+        type: array
+      issues:
+        items:
+          $ref: '#/definitions/domain.Issue'
+        type: array
+      project_id:
+        type: integer
+    type: object
+  v1.statisticsDTO:
+    properties:
+      _links:
+        items:
+          type: string
+        type: array
+      project_id:
+        type: integer
+      statistics:
+        properties:
+          average_time:
+            type: integer
+          closed_number:
+            type: integer
+          opened_number:
+            type: integer
+          total_number:
+            type: integer
+          weekly_average_opened:
+            type: integer
+        type: object
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: This is a service for jira issues and projects analytics.
+  title: REST Backend Service
+  version: "1.0"
+paths:
+  /issues:
+    get:
+      consumes:
+      - application/json
+      description: get list by ID
+      parameters:
+      - description: Project ID
+        in: query
+        name: project_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.issuesDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+      summary: Get issues list by project id
+      tags:
+      - issue
+  /issues/fetch:
+    patch:
+      consumes:
+      - application/json
+      description: fetch issues
+      parameters:
+      - description: Project ID
+        in: query
+        name: project_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+      summary: Fetch project's issues locally
+      tags:
+      - issue
+  /issues/statistics:
+    get:
+      consumes:
+      - application/json
+      description: get statistics by project ID
+      parameters:
+      - description: Project ID
+        in: query
+        name: project_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.statisticsDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+      summary: Get issues statistics on project
+      tags:
+      - issue
+  /projects:
+    get:
+      consumes:
+      - application/json
+      description: support pagination for ptojects
+      parameters:
+      - description: Max number of projects
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: opject
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+      summary: Get projects by pages
+      tags:
+      - project
+  /projects/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get one fetched projects
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: opject
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+      summary: Get project info by ID
+      tags:
+      - project
+  /projects/{id}/fetch:
+    patch:
+      consumes:
+      - application/json
+      description: fetch project
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+      summary: Fetch project locally
+      tags:
+      - project
+  /projects/fetch:
+    patch:
+      consumes:
+      - application/json
+      description: support pagination for ptojects
+      parameters:
+      - description: Max number of projects
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProjectsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+      summary: Get short project info by pages
+      tags:
+      - project
+swagger: "2.0"

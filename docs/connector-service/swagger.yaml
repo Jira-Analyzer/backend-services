@@ -1,0 +1,185 @@
+basePath: /api/v1
+definitions:
+  dto.PageInfo:
+    properties:
+      currentPage:
+        type: integer
+      pageCount:
+        type: integer
+      projectsCount:
+        type: integer
+    type: object
+  dto.Project:
+    properties:
+      link:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.ProjectsResponse:
+    properties:
+      pageInfo:
+        $ref: '#/definitions/dto.PageInfo'
+      projects:
+        items:
+          $ref: '#/definitions/dto.Project'
+        type: array
+    type: object
+  errorlib.JSONError:
+    properties:
+      error:
+        properties:
+          code:
+            type: integer
+          msg:
+            type: string
+        type: object
+    type: object
+host: localhost:8003
+info:
+  contact: {}
+  description: This is a service for jto fetch issues and projects from Jira.
+  title: Connector Service
+  version: "1.0"
+paths:
+  /issues/fetch:
+    patch:
+      consumes:
+      - application/json
+      description: fetch issues
+      parameters:
+      - description: Project ID
+        in: query
+        name: project_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+      summary: Fetch project's issues locally
+      tags:
+      - issue
+  /projects/{id}/fetch:
+    patch:
+      consumes:
+      - application/json
+      description: fetch project
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+      summary: Fetch project locally
+      tags:
+      - project
+  /projects/fetch:
+    patch:
+      consumes:
+      - application/json
+      description: support pagination for ptojects
+      parameters:
+      - description: Max number of projects
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProjectsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+        "504":
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/errorlib.JSONError'
+      summary: Get short project info by pages
+      tags:
+      - project
+swagger: "2.0"

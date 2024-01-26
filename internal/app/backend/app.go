@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	_ "github.com/Jira-Analyzer/backend-services/docs/backend-service"
 	provider "github.com/Jira-Analyzer/backend-services/internal/db"
 	handler "github.com/Jira-Analyzer/backend-services/internal/handler/backend/http"
 	"github.com/Jira-Analyzer/backend-services/internal/repository"
@@ -11,6 +12,7 @@ import (
 	service "github.com/Jira-Analyzer/backend-services/internal/service/backend"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type App struct {
@@ -38,6 +40,7 @@ func NewApp(config *Config, notify chan error) (*App, error) {
 	})
 
 	router := mux.NewRouter()
+	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 	handlers.SetRouter(router)
 
 	server := server.NewServer(&config.ServerConfig, c.Handler(router), notify)

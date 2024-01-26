@@ -8,6 +8,7 @@ import (
 
 	"github.com/Jira-Analyzer/backend-services/internal/app/backend"
 	"github.com/Jira-Analyzer/backend-services/internal/config"
+	_ "github.com/Jira-Analyzer/backend-services/internal/domain"
 	"github.com/Jira-Analyzer/backend-services/internal/logger"
 	log "github.com/sirupsen/logrus"
 )
@@ -15,6 +16,13 @@ import (
 const (
 	configFile string = "configs/backend/config.yaml"
 )
+
+// @title           REST Backend Service
+// @version         1.0
+// @description     This is a service for jira issues and projects analytics.
+//
+// @host      localhost:8000
+// @BasePath  /api/v1
 
 func main() {
 	conf, err := config.ReadConfigFromYAML[backend.Config](configFile)

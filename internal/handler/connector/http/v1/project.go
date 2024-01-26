@@ -26,6 +26,22 @@ func (handler *ProjectHandler) SetRouter(router *mux.Router) {
 	router.HandleFunc("/projects/{id:[0-9]+}/fetch", handler.FetchProjectByID).Methods(http.MethodPatch, http.MethodOptions)
 }
 
+// fetchProjects gets list of all projects from jira
+// @Summary      Get short project info by pages
+// @Description  support pagination for ptojects
+// @Tags         project
+// @Accept       json
+// @Produce      json
+// @Param        limit   query      int  true  "Max number of projects"
+// @Param        page   query      int  true  "Page number"
+// @Success      200  {object}  dto.ProjectsResponse
+// @Failure      400  {object}  errorlib.JSONError
+// @Failure      408  {object}  errorlib.JSONError
+// @Failure      409  {object}  errorlib.JSONError
+// @Failure      422  {object}  errorlib.JSONError
+// @Failure      500  {object}  errorlib.JSONError
+// @Failure      504  {object}  errorlib.JSONError
+// @Router       /projects/fetch [patch]
 func (handler *ProjectHandler) FetchAllProjects(w http.ResponseWriter, r *http.Request) {
 	limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
 	if err != nil || limit <= 0 {
@@ -55,6 +71,21 @@ func (handler *ProjectHandler) FetchAllProjects(w http.ResponseWriter, r *http.R
 	util.WriteJSON(w, projects)
 }
 
+// fetchProject save project from Jira to db
+// @Summary      Fetch project locally
+// @Description  fetch project
+// @Tags         project
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Project ID"
+// @Success      200  {string}  Success
+// @Failure      400  {object}  errorlib.JSONError
+// @Failure      408  {object}  errorlib.JSONError
+// @Failure      409  {object}  errorlib.JSONError
+// @Failure      422  {object}  errorlib.JSONError
+// @Failure      500  {object}  errorlib.JSONError
+// @Failure      504  {object}  errorlib.JSONError
+// @Router       /projects/{id}/fetch [patch]
 func (handler *ProjectHandler) FetchProjectByID(w http.ResponseWriter, r *http.Request) {
 	projectId, _ := strconv.Atoi(mux.Vars(r)["id"])
 
