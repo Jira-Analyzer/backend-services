@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/Jira-Analyzer/backend-services/internal/client/jira/dto"
 
 	errorlib "github.com/Jira-Analyzer/backend-services/internal/error"
-	"github.com/sirupsen/logrus"
 )
 
 func (s *Service) FetchProjects(page, count int) (*dto.ProjectsResponse, error) {
@@ -31,17 +31,5 @@ func (s *Service) FetchProject(id int) error {
 	} else if err != nil {
 		return fmt.Errorf("failed to check project existence in database: %w", errorlib.ErrHttpInternal)
 	}
-	logrus.Info(id)
-	issues, err := s.client.FetchIssues(id, 100)
-	if err != nil {
-		return fmt.Errorf("failed to fetch issues from Jira: %w", errorlib.ErrHttpInternal)
-	}
-
-	for _, issue := range issues {
-		if err := s.issuesRepo.InsertIssue(context.Background(), issue.ToDomainIssue(id)); err != nil {
-			return fmt.Errorf("issue with key '%s' already exists: %w", issue.Id, errorlib.ErrHttpConflict)
-		}
-	}
-
 	return nil
 }

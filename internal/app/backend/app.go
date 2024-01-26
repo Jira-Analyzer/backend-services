@@ -23,7 +23,7 @@ func NewApp(config *Config, notify chan error) (*App, error) {
 	}
 
 	repos := repository.NewRepositories(provider)
-	services := service.NewServices(repos)
+	services := service.NewServices(repos, &config.ServerConfig)
 	handlers := handler.NewHandler(services)
 
 	router := mux.NewRouter()

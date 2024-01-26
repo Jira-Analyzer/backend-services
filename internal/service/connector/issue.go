@@ -3,7 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
+
 	errorlib "github.com/Jira-Analyzer/backend-services/internal/error"
+	"github.com/sirupsen/logrus"
 )
 
 func (s *Service) FetchIssue(projectId int) error {
@@ -14,7 +16,7 @@ func (s *Service) FetchIssue(projectId int) error {
 
 	for _, issue := range issues {
 		if err := s.issuesRepo.InsertIssue(context.Background(), issue.ToDomainIssue(projectId)); err != nil {
-			return fmt.Errorf("failed to insert issue into database: %w", errorlib.ErrHttpConflict)
+			logrus.Error(err)
 		}
 	}
 

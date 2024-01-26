@@ -2,13 +2,14 @@ package jira
 
 import (
 	"encoding/json"
-	"github.com/Jira-Analyzer/backend-services/internal/client/jira/dto"
 	"io"
 	"math"
 	"net/http"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/Jira-Analyzer/backend-services/internal/client/jira/dto"
 
 	"github.com/Jira-Analyzer/backend-services/internal/domain"
 	errorlib "github.com/Jira-Analyzer/backend-services/internal/error"
@@ -134,6 +135,7 @@ func (c *Client) FetchIssues(id int, timeToWaitMs int) ([]dto.Issue, error) {
 
 	for i := 0; i < threadCount; i++ {
 		waitGroup.Add(1)
+
 		go func(threadNumber int) {
 			defer waitGroup.Done()
 			select {
@@ -155,12 +157,18 @@ func (c *Client) FetchIssues(id int, timeToWaitMs int) ([]dto.Issue, error) {
 
 						if requestErr != nil || responseReadErr != nil {
 							wasError = true
+							logrus.Error(requestErr, responseReadErr)
 							close(stop)
 							return
 						}
 
 						var issueResponse dto.IssuesList
-						_ = json.Unmarshal(body, &issueResponse)
+						err = json.Unmarshal(body, &issueResponse)
+						if err != nil {
+							logrus.Error(err)
+							close(stop)
+							return
+						}
 
 						mutex.Lock()
 						for _, elem := range issueResponse.Issues {
@@ -183,7 +191,6 @@ func (c *Client) FetchIssues(id int, timeToWaitMs int) ([]dto.Issue, error) {
 		if time.Duration(newTimeToSleep) > c.maxTimeSleep {
 			return nil, errorlib.ErrHttpGatewayTimeout
 		}
-
 		return c.FetchIssues(id, newTimeToSleep)
 	}
 

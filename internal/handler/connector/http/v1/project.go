@@ -46,7 +46,7 @@ func (handler *ProjectHandler) FetchAllProjects(w http.ResponseWriter, r *http.R
 	projects, err := handler.service.FetchProjects(page, limit)
 	if err != nil {
 		logrus.Error(err)
-		jsonErr := errorlib.GetJSONError("failed to fetch projects", errorlib.ErrHttpInternal)
+		jsonErr := errorlib.GetJSONError("failed to fetch projects", err)
 		w.WriteHeader(jsonErr.Error.Code)
 		util.WriteJSON(w, &jsonErr)
 		return
@@ -61,7 +61,7 @@ func (handler *ProjectHandler) FetchProjectByID(w http.ResponseWriter, r *http.R
 	err := handler.service.FetchProject(projectId)
 	if err != nil {
 		logrus.Error(err)
-		jsonErr := errorlib.GetJSONError("failed to fetch project", errorlib.ErrHttpInternal)
+		jsonErr := errorlib.GetJSONError("failed to fetch project", err)
 		w.WriteHeader(jsonErr.Error.Code)
 		util.WriteJSON(w, &jsonErr)
 		return

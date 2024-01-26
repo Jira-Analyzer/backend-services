@@ -8,6 +8,7 @@ import (
 	service "github.com/Jira-Analyzer/backend-services/internal/service/connector"
 	"github.com/Jira-Analyzer/backend-services/internal/util"
 	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 )
 
 type IssueHandler struct {
@@ -35,7 +36,8 @@ func (handler *IssueHandler) FetchIssueByID(w http.ResponseWriter, r *http.Reque
 
 	err = handler.service.FetchIssue(projectId)
 	if err != nil {
-		jsonErr := errorlib.GetJSONError("failed to fetch issue", errorlib.ErrHttpInternal)
+		logrus.Error(err)
+		jsonErr := errorlib.GetJSONError("failed to fetch issue", err)
 		w.WriteHeader(jsonErr.Error.Code)
 		util.WriteJSON(w, &jsonErr)
 		return

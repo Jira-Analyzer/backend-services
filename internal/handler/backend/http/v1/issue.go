@@ -15,17 +15,20 @@ import (
 
 type IssueHandler struct {
 	service service.IIssueService
+	proxy   *service.ProxyService
 }
 
-func NewIssueHandler(service service.IIssueService) *IssueHandler {
+func NewIssueHandler(service *service.Services) *IssueHandler {
 	return &IssueHandler{
-		service: service,
+		service: service.IssueService,
+		proxy:   service.Proxy,
 	}
 }
 
 func (handler *IssueHandler) SetRouter(router *mux.Router) {
 	router.HandleFunc("/issues", handler.getIssuesByProjectId).Methods(http.MethodGet).Queries("project_id", "{project_id}")
 	router.HandleFunc("/issues/statistics", handler.getStatistics).Methods(http.MethodGet).Queries("project_id", "{project_id}")
+	router.HandleFunc("/issues/fetch", handler.fetchIssues).Methods(http.MethodPatch).Queries("project_id", "{project_id}")
 }
 
 type issuesDTO struct {
@@ -98,4 +101,8 @@ func (handler *IssueHandler) getStatistics(writer http.ResponseWriter, request *
 	statistics.Statistics.OpenedAverage = handler.service.GetWeekAverageCreatedNumber(request.Context(), issues)
 
 	util.WriteJSON(writer, &statistics)
+}
+
+func (handler *IssueHandler) fetchIssues(writer http.ResponseWriter, request *http.Request) {
+	handler.proxy.ServeHTTP(writer, request)
 }

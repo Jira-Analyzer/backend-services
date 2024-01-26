@@ -13,12 +13,14 @@ import (
 )
 
 type ProjectHandler struct {
-	service service.IProjectService
+	projectService service.IProjectService
+	proxy          *service.ProxyService
 }
 
-func NewProjectHandler(service service.IProjectService) *ProjectHandler {
+func NewProjectHandler(service *service.Services) *ProjectHandler {
 	return &ProjectHandler{
-		service: service,
+		projectService: service.ProjectService,
+		proxy:          service.Proxy,
 	}
 }
 
@@ -26,6 +28,8 @@ func (handler *ProjectHandler) SetRouter(router *mux.Router) {
 	router.HandleFunc("/projects", handler.getProjectsPage).Methods(http.MethodGet).Queries("limit", "{limit}", "page", "{page}")
 	router.HandleFunc("/projects", handler.getAll).Methods(http.MethodGet)
 	router.HandleFunc("/projects/{id:[0-9]+}", handler.getProjectById).Methods(http.MethodGet)
+	router.HandleFunc("/projects/{id:[0-9]+}/fetch", handler.fetchProject).Methods(http.MethodPatch)
+	router.HandleFunc("/projects/fetch", handler.fetchProjects).Methods(http.MethodPatch)
 }
 
 type ProjectsDTO struct {
@@ -41,7 +45,7 @@ type ProjectDTO struct {
 }
 
 func (handler *ProjectHandler) getAll(writer http.ResponseWriter, request *http.Request) {
-	projects, err := handler.service.GetProjects(request.Context())
+	projects, err := handler.projectService.GetProjects(request.Context())
 	if err != nil {
 		log.Error(err)
 
@@ -75,7 +79,7 @@ func (handler *ProjectHandler) getProjectsPage(writer http.ResponseWriter, reque
 		return
 	}
 
-	projects, err := handler.service.GetProjectsByRange(request.Context(), (page-1)*limit, limit)
+	projects, err := handler.projectService.GetProjectsByRange(request.Context(), (page-1)*limit, limit)
 	if err != nil {
 		log.Error(err)
 
@@ -94,7 +98,7 @@ func (handler *ProjectHandler) getProjectsPage(writer http.ResponseWriter, reque
 
 func (handler *ProjectHandler) getProjectById(writer http.ResponseWriter, request *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(request)["id"])
-	project, err := handler.service.GetProjectById(request.Context(), id)
+	project, err := handler.projectService.GetProjectById(request.Context(), id)
 	if err != nil {
 		log.Error(err)
 
@@ -108,4 +112,12 @@ func (handler *ProjectHandler) getProjectById(writer http.ResponseWriter, reques
 		Project: *project,
 	}
 	util.WriteJSON(writer, &response)
+}
+
+func (handler *ProjectHandler) fetchProject(writer http.ResponseWriter, request *http.Request) {
+	handler.proxy.ServeHTTP(writer, request)
+}
+
+func (handler *ProjectHandler) fetchProjects(writer http.ResponseWriter, request *http.Request) {
+	handler.proxy.ServeHTTP(writer, request)
 }
