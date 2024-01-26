@@ -2,13 +2,15 @@ package connector
 
 import (
 	"fmt"
+	"net/http"
 
 	provider "github.com/Jira-Analyzer/backend-services/internal/db"
-	"github.com/Jira-Analyzer/backend-services/internal/handler/connector/http"
+	handler "github.com/Jira-Analyzer/backend-services/internal/handler/connector/http"
 	"github.com/Jira-Analyzer/backend-services/internal/repository"
 	server "github.com/Jira-Analyzer/backend-services/internal/server/backend"
 	service "github.com/Jira-Analyzer/backend-services/internal/service/connector"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 type App struct {
@@ -24,7 +26,16 @@ func NewApp(config *Config, notify chan error) (*App, error) {
 
 	repos := repository.NewRepositories(provider)
 	services := service.NewService(config.ConnectorConfig, repos)
-	handlers := http.NewHandler(services)
+	handlers := handler.NewHandler(services)
+
+	c := cors.New(cors.Options{
+		AllowCredentials: true,
+		AllowedMethods:   []string{http.MethodOptions, http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodPatch},
+		AllowedHeaders:   []string{"Content-Type", "Authorization", "Set-Cookie", "User-Agent", "Origin"},
+		AllowOriginFunc: func(origin string) bool {
+			return true
+		},
+	})
 
 	router := mux.NewRouter()
 	handlers.SetRouter(router)
@@ -33,7 +44,7 @@ func NewApp(config *Config, notify chan error) (*App, error) {
 		Host:         &config.ConnectorConfig.Host,
 		ReadTimeout:  &config.ConnectorConfig.ReadTimeout,
 		WriteTimeout: &config.ConnectorConfig.WriteTimeout,
-	}, router, notify)
+	}, c.Handler(router), notify)
 
 	return &App{
 		server:   server,

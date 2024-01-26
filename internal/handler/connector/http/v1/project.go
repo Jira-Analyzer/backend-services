@@ -22,8 +22,8 @@ func NewProjectHandler(service *service.Service) *ProjectHandler {
 }
 
 func (handler *ProjectHandler) SetRouter(router *mux.Router) {
-	router.HandleFunc("/projects/fetch", handler.FetchAllProjects).Methods(http.MethodPatch).Queries("limit", "{limit}", "page", "{page}")
-	router.HandleFunc("/projects/{id:[0-9]+}/fetch", handler.FetchProjectByID).Methods(http.MethodPatch)
+	router.HandleFunc("/projects/fetch", handler.FetchAllProjects).Methods(http.MethodPatch, http.MethodOptions).Queries("limit", "{limit}", "page", "{page}")
+	router.HandleFunc("/projects/{id:[0-9]+}/fetch", handler.FetchProjectByID).Methods(http.MethodPatch, http.MethodOptions)
 }
 
 func (handler *ProjectHandler) FetchAllProjects(w http.ResponseWriter, r *http.Request) {

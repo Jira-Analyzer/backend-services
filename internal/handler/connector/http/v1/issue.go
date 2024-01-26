@@ -22,7 +22,7 @@ func NewIssueHandler(service *service.Service) *IssueHandler {
 }
 
 func (handler *IssueHandler) SetRouter(router *mux.Router) {
-	router.HandleFunc("/issues/fetch", handler.FetchIssueByID).Methods(http.MethodPatch).Queries("project_id", "{project_id}")
+	router.HandleFunc("/issues/fetch", handler.FetchIssueByID).Methods(http.MethodPatch, http.MethodOptions).Queries("project_id", "{project_id}")
 }
 
 func (handler *IssueHandler) FetchIssueByID(w http.ResponseWriter, r *http.Request) {
@@ -43,6 +43,6 @@ func (handler *IssueHandler) FetchIssueByID(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	response := map[string]interface{}{"message": "Project updated successfully"}
+	response := map[string]interface{}{"message": "Issues updated successfully"}
 	util.WriteJSON(w, response)
 }
