@@ -25,6 +25,21 @@ func (handler *IssueHandler) SetRouter(router *mux.Router) {
 	router.HandleFunc("/issues/fetch", handler.FetchIssueByID).Methods(http.MethodPatch, http.MethodOptions).Queries("project_id", "{project_id}")
 }
 
+// fetchIssues save issues from Jira to db
+// @Summary      Fetch project's issues locally
+// @Description  fetch issues
+// @Tags         issue
+// @Accept       json
+// @Produce      json
+// @Param        project_id   query      int  true  "Project ID"
+// @Success      200  {string}  Success
+// @Failure      400  {object}  errorlib.JSONError
+// @Failure      408  {object}  errorlib.JSONError
+// @Failure      409  {object}  errorlib.JSONError
+// @Failure      422  {object}  errorlib.JSONError
+// @Failure      500  {object}  errorlib.JSONError
+// @Failure      504  {object}  errorlib.JSONError
+// @Router       /issues/fetch [patch]
 func (handler *IssueHandler) FetchIssueByID(w http.ResponseWriter, r *http.Request) {
 	projectId, err := strconv.Atoi(mux.Vars(r)["project_id"])
 	if err != nil || projectId < 0 {

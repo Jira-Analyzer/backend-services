@@ -16,6 +16,13 @@ const (
 	configFile string = "configs/connector/config.yaml"
 )
 
+// @title           Connector Service
+// @version         1.0
+// @description     This is a service for jto fetch issues and projects from Jira.
+//
+// @host      localhost:8003
+// @BasePath  /api/v1
+
 func main() {
 	conf, err := config.ReadConfigFromYAML[connector.Config](configFile)
 	if err != nil {

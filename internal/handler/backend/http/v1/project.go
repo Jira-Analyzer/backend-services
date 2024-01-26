@@ -29,7 +29,7 @@ func (handler *ProjectHandler) SetRouter(router *mux.Router) {
 	router.HandleFunc("/projects", handler.getAll).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc("/projects/{id:[0-9]+}", handler.getProjectById).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc("/projects/{id:[0-9]+}/fetch", handler.fetchProject).Methods(http.MethodPatch, http.MethodOptions)
-	router.HandleFunc("/projects/fetch", handler.fetchProjects).Methods(http.MethodPatch, http.MethodOptions)
+	router.HandleFunc("/projects/fetch", handler.fetchProjects).Methods(http.MethodPatch, http.MethodOptions).Queries("limit", "{limit}", "page", "{page}")
 }
 
 type ProjectsDTO struct {
@@ -44,6 +44,17 @@ type ProjectDTO struct {
 	Project domain.Project `json:"project"`
 }
 
+// getAll gets all fetched projects
+// @Summary      Get all fetched projects
+// @Description  get saved projects
+// @Tags         project
+// @Accept       json
+// @Produce      json
+// @Success      200  {opject}  ProjectsDTO
+// @Failure      400  {object}  errorlib.JSONError
+// @Failure      422  {object}  errorlib.JSONError
+// @Failure      500  {object}  errorlib.JSONError
+// @Router       /projects [get]
 func (handler *ProjectHandler) getAll(writer http.ResponseWriter, request *http.Request) {
 	projects, err := handler.projectService.GetProjects(request.Context())
 	if err != nil {
@@ -62,6 +73,19 @@ func (handler *ProjectHandler) getAll(writer http.ResponseWriter, request *http.
 	util.WriteJSON(writer, &response)
 }
 
+// getProjectsPage gets all projects
+// @Summary      Get projects by pages
+// @Description  support pagination for ptojects
+// @Tags         project
+// @Accept       json
+// @Produce      json
+// @Param        limit   query      int  true  "Max number of projects"
+// @Param        page   query      int  true  "Page number"
+// @Success      200  {opject}  ProjectsDTO
+// @Failure      400  {object}  errorlib.JSONError
+// @Failure      422  {object}  errorlib.JSONError
+// @Failure      500  {object}  errorlib.JSONError
+// @Router       /projects [get]
 func (handler *ProjectHandler) getProjectsPage(writer http.ResponseWriter, request *http.Request) {
 	limit, err := strconv.Atoi(request.URL.Query().Get("limit"))
 	if err != nil || limit <= 0 {
@@ -96,6 +120,18 @@ func (handler *ProjectHandler) getProjectsPage(writer http.ResponseWriter, reque
 	util.WriteJSON(writer, &response)
 }
 
+// getProjectById gets project by id
+// @Summary      Get project info by ID
+// @Description  get one fetched projects
+// @Tags         project
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Project ID"
+// @Success      200  {opject}  ProjectDTO
+// @Failure      400  {object}  errorlib.JSONError
+// @Failure      422  {object}  errorlib.JSONError
+// @Failure      500  {object}  errorlib.JSONError
+// @Router       /projects/{id} [get]
 func (handler *ProjectHandler) getProjectById(writer http.ResponseWriter, request *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(request)["id"])
 	project, err := handler.projectService.GetProjectById(request.Context(), id)
@@ -114,10 +150,41 @@ func (handler *ProjectHandler) getProjectById(writer http.ResponseWriter, reques
 	util.WriteJSON(writer, &response)
 }
 
+// fetchProject save project from Jira to db
+// @Summary      Fetch project locally
+// @Description  fetch project
+// @Tags         project
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Project ID"
+// @Success      200  {string}  Success
+// @Failure      400  {object}  errorlib.JSONError
+// @Failure      408  {object}  errorlib.JSONError
+// @Failure      409  {object}  errorlib.JSONError
+// @Failure      422  {object}  errorlib.JSONError
+// @Failure      500  {object}  errorlib.JSONError
+// @Failure      504  {object}  errorlib.JSONError
+// @Router       /projects/{id}/fetch [patch]
 func (handler *ProjectHandler) fetchProject(writer http.ResponseWriter, request *http.Request) {
 	handler.proxy.ServeHTTP(writer, request)
 }
 
+// fetchProjects gets list of all projects from jira
+// @Summary      Get short project info by pages
+// @Description  support pagination for ptojects
+// @Tags         project
+// @Accept       json
+// @Produce      json
+// @Param        limit   query      int  true  "Max number of projects"
+// @Param        page   query      int  true  "Page number"
+// @Success      200  {object}  dto.ProjectsResponse
+// @Failure      400  {object}  errorlib.JSONError
+// @Failure      408  {object}  errorlib.JSONError
+// @Failure      409  {object}  errorlib.JSONError
+// @Failure      422  {object}  errorlib.JSONError
+// @Failure      500  {object}  errorlib.JSONError
+// @Failure      504  {object}  errorlib.JSONError
+// @Router       /projects/fetch [patch]
 func (handler *ProjectHandler) fetchProjects(writer http.ResponseWriter, request *http.Request) {
 	handler.proxy.ServeHTTP(writer, request)
 }

@@ -26,9 +26,9 @@ func NewIssueHandler(service *service.Services) *IssueHandler {
 }
 
 func (handler *IssueHandler) SetRouter(router *mux.Router) {
-	router.HandleFunc("/issues", handler.getIssuesByProjectId).Methods(http.MethodGet).Queries("project_id", "{project_id}")
-	router.HandleFunc("/issues/statistics", handler.getStatistics).Methods(http.MethodGet).Queries("project_id", "{project_id}")
-	router.HandleFunc("/issues/fetch", handler.fetchIssues).Methods(http.MethodPatch).Queries("project_id", "{project_id}")
+	router.HandleFunc("/issues", handler.getIssuesByProjectId).Methods(http.MethodGet, http.MethodOptions).Queries("project_id", "{project_id}")
+	router.HandleFunc("/issues/statistics", handler.getStatistics).Methods(http.MethodGet, http.MethodOptions).Queries("project_id", "{project_id}")
+	router.HandleFunc("/issues/fetch", handler.fetchIssues).Methods(http.MethodPatch, http.MethodOptions).Queries("project_id", "{project_id}")
 }
 
 type issuesDTO struct {
@@ -37,6 +37,18 @@ type issuesDTO struct {
 	Issues    []domain.Issue `json:"issues"`
 }
 
+// getIssuesByProjectId gets issues by project id
+// @Summary      Get issues list by project id
+// @Description  get list by ID
+// @Tags         issue
+// @Accept       json
+// @Produce      json
+// @Param        project_id   query      int  true  "Project ID"
+// @Success      200  {object}  issuesDTO
+// @Failure      400  {object}  errorlib.JSONError
+// @Failure      422  {object}  errorlib.JSONError
+// @Failure      500  {object}  errorlib.JSONError
+// @Router       /issues [get]
 func (handler *IssueHandler) getIssuesByProjectId(writer http.ResponseWriter, request *http.Request) {
 	projectId, err := strconv.Atoi(mux.Vars(request)["project_id"])
 	if err != nil || projectId < 0 {
@@ -75,6 +87,18 @@ type statisticsDTO struct {
 	} `json:"statistics"`
 }
 
+// getStatistics gets issues by project id
+// @Summary      Get issues statistics on project
+// @Description  get statistics by project ID
+// @Tags         issue
+// @Accept       json
+// @Produce      json
+// @Param        project_id   query      int  true  "Project ID"
+// @Success      200  {object}  statisticsDTO
+// @Failure      400  {object}  errorlib.JSONError
+// @Failure      422  {object}  errorlib.JSONError
+// @Failure      500  {object}  errorlib.JSONError
+// @Router       /issues/statistics [get]
 func (handler *IssueHandler) getStatistics(writer http.ResponseWriter, request *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(request)["id"])
 	if err != nil || id < 0 {
@@ -103,6 +127,21 @@ func (handler *IssueHandler) getStatistics(writer http.ResponseWriter, request *
 	util.WriteJSON(writer, &statistics)
 }
 
+// fetchIssues save issues from Jira to db
+// @Summary      Fetch project's issues locally
+// @Description  fetch issues
+// @Tags         issue
+// @Accept       json
+// @Produce      json
+// @Param        project_id   query      int  true  "Project ID"
+// @Success      200  {string}  Success
+// @Failure      400  {object}  errorlib.JSONError
+// @Failure      408  {object}  errorlib.JSONError
+// @Failure      409  {object}  errorlib.JSONError
+// @Failure      422  {object}  errorlib.JSONError
+// @Failure      500  {object}  errorlib.JSONError
+// @Failure      504  {object}  errorlib.JSONError
+// @Router       /issues/fetch [patch]
 func (handler *IssueHandler) fetchIssues(writer http.ResponseWriter, request *http.Request) {
 	handler.proxy.ServeHTTP(writer, request)
 }
