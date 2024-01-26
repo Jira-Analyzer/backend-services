@@ -25,11 +25,11 @@ func NewProjectHandler(service *service.Services) *ProjectHandler {
 }
 
 func (handler *ProjectHandler) SetRouter(router *mux.Router) {
-	router.HandleFunc("/projects", handler.getProjectsPage).Methods(http.MethodGet).Queries("limit", "{limit}", "page", "{page}")
-	router.HandleFunc("/projects", handler.getAll).Methods(http.MethodGet)
-	router.HandleFunc("/projects/{id:[0-9]+}", handler.getProjectById).Methods(http.MethodGet)
-	router.HandleFunc("/projects/{id:[0-9]+}/fetch", handler.fetchProject).Methods(http.MethodPatch)
-	router.HandleFunc("/projects/fetch", handler.fetchProjects).Methods(http.MethodPatch)
+	router.HandleFunc("/projects", handler.getProjectsPage).Methods(http.MethodGet, http.MethodOptions).Queries("limit", "{limit}", "page", "{page}")
+	router.HandleFunc("/projects", handler.getAll).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc("/projects/{id:[0-9]+}", handler.getProjectById).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc("/projects/{id:[0-9]+}/fetch", handler.fetchProject).Methods(http.MethodPatch, http.MethodOptions)
+	router.HandleFunc("/projects/fetch", handler.fetchProjects).Methods(http.MethodPatch, http.MethodOptions)
 }
 
 type ProjectsDTO struct {

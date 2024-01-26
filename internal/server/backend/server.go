@@ -2,8 +2,6 @@ package server
 
 import (
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 type Server struct {
@@ -11,7 +9,7 @@ type Server struct {
 	notify chan error
 }
 
-func NewServer(config *ServerConfig, router *mux.Router, notify chan error) *Server {
+func NewServer(config *ServerConfig, router http.Handler, notify chan error) *Server {
 	httpServer := &http.Server{
 		Addr:         *config.Host,
 		Handler:      router,
