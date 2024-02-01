@@ -1,10 +1,10 @@
 db:
-  host: "localhost:5432"
+  host: "postgres:5432"
   name: "testdb"
   user: "pguser"
   password: "pgpwd"
 connector-service:
-  host: "localhost:8003"
+  host: ":8003"
   jira-url: https://issues.apache.org/jira
   issues-per-request: 100
   thread-count: 10

@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  connector-service:
+    container_name: connector-service
+    image: connector-service:latest
+    volumes:
+      - ../../configs/connector/config.yaml:/configs/connector/config.yaml
+    ports:
+      - "8003:8003"
+    restart: unless-stopped
+    networks:
+      - jira-analyzer
+    depends_on:
+      postgres:
+        condition: service_healthy
