@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  backend-service:
+    container_name: backend-service
+    image: backend-service:latest
+    volumes:
+      - ../../configs/backend/config.yaml:/configs/backend/config.yaml
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - jira-analyzer
+    depends_on:
+      postgres:
+        condition: service_healthy
